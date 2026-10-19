@@ -1,6 +1,6 @@
 :root {
   --texto: #1a1d21;
-  --suave: #5c6570;
+  --suave: #4a535c;
   --linha: #e2e6ea;
   --fundo: #ffffff;
   --fundo-suave: #f7f9fa;
@@ -35,13 +35,13 @@ body {
 
 /* topo */
 .topo {
-  border-bottom: 1px solid var(--linha);
   background: var(--fundo);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 .topo .limite {
+  border-bottom: 1px solid var(--linha);
   display: flex;
   align-items: center;
   gap: 28px;
@@ -82,7 +82,7 @@ body {
   font-size: 14px;
 }
 .abas a {
-  color: var(--suave);
+  color: #39424b;
   text-decoration: none;
   padding: 4px 0;
   border-bottom: 2px solid transparent;
@@ -107,7 +107,7 @@ body {
 }
 .conteudo h2:first-of-type { border-top: 0; padding-top: 0; }
 .conteudo h3 { font-size: 17px; margin: 26px 0 8px; }
-.conteudo p, .conteudo li { color: var(--texto); }
+.conteudo p, .conteudo li { color: var(--texto); text-wrap: pretty; }
 .conteudo a { color: var(--acento); text-decoration-thickness: 1px; text-underline-offset: 2px; }
 .conteudo a:hover { text-decoration-thickness: 2px; }
 .conteudo hr { border: 0; border-top: 1px solid var(--linha); margin: 36px 0; }
@@ -127,7 +127,9 @@ pre {
   border-radius: 8px;
   padding: 14px 16px;
   overflow-x: auto;
-  line-height: 1.5;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 pre code { background: none; padding: 0; }
 
@@ -174,13 +176,18 @@ blockquote {
 .cartao span { color: var(--suave); font-size: 14px; }
 
 .rodape {
-  border-top: 1px solid var(--linha);
   padding: 22px 0 40px;
   color: var(--suave);
   font-size: 13.5px;
 }
-.rodape .limite { display: flex; gap: 8px; flex-wrap: wrap; }
-.rodape a { color: var(--suave); }
+.rodape .limite {
+  border-top: 1px solid var(--linha);
+  padding-top: 22px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rodape a { color: #4a535c; text-decoration: underline; text-underline-offset: 2px; }
 
 @media (max-width: 640px) {
   .topo .limite { min-height: auto; padding-top: 12px; padding-bottom: 12px; }

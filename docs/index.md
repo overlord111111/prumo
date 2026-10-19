@@ -2,10 +2,11 @@
 title: Documentação
 ---
 
-# prumo
+# Verificar antes de construir
 
-Ferramenta de linha de comando para engenharia reversa de jogos com agente de IA. Decide o caminho,
-executa os passos de leitura e **verifica** se o que o agente encontrou é o que ele diz que é.
+`prumo` é uma ferramenta de linha de comando para engenharia reversa de jogos com agente de IA. Ela
+decide o caminho, executa os passos de leitura e **verifica** se o que o agente encontrou é o que ele diz
+que é.
 
 Versão **0.2.0** · adaptador de referência em Linux · quatro motores e cinco anti-cheats documentados.
 
