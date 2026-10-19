@@ -1,5 +1,9 @@
 # prumo
 
+[![CI](https://github.com/overlord111111/prumo/actions/workflows/ci.yml/badge.svg)](https://github.com/overlord111111/prumo/actions/workflows/ci.yml)
+[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+
 Ferramenta de linha de comando para quem faz engenharia reversa de jogos com agente de IA.
 O prumo não dá acesso ao jogo — isso as ferramentas de memória já fazem. Ele dá **critério**:
 decide o caminho antes de começar, executa os passos de leitura e **verifica** se o que o
