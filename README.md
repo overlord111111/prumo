@@ -1,53 +1,15 @@
 # prumo
 
-> **O prumo do agente.** Diagnóstico, playbooks e verificação para engenharia reversa de jogos com agentes de IA.
+Ferramenta de linha de comando para quem faz engenharia reversa de jogos com agente de IA.
+O prumo não dá acesso ao jogo — isso as ferramentas de memória já fazem. Ele dá **critério**:
+decide o caminho antes de começar, executa os passos de leitura e **verifica** se o que o
+agente encontrou é o que ele diz que é.
 
-[![CI](https://github.com/overlord111111/prumo/actions/workflows/ci.yml/badge.svg)](https://github.com/overlord111111/prumo/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
-
----
-
-## O problema, em três linhas
-
-O agente de IA hoje escreve código de cheat de olho fechado: chuta o offset, inventa o nome da classe, não
-sabe se o que achou é a vida ou o contador de munição. Ele tem acesso a ferramenta de sobra — **o que ele não
-tem é critério**.
-
-Na construção civil, a parede pode parecer reta. É o **prumo** — o fio com peso — que diz se ela está. Este
-projeto é isso para o trabalho do agente: **o fio que mede se o passo está reto antes de construir em cima**.
-
-## O que o prumo é — e o que ele NÃO é
-
-| é | não é |
-|---|---|
-| **diagnóstico**: qual caminho faz sentido para motor + anti-cheat + modo de jogo | não é cheat pronto de jogo específico |
-| **playbooks**: o método por engine (Unity Mono/IL2CPP, Unreal, Source 2) e por AC (BattlEye, EAC, VAC, Vanguard) | não é lista de offsets que envelhece em uma semana |
-| **verificação**: 7 checks com `PASS`/`FAIL`/`INDETERMINADO` e o número medido | não é "confia, funciona" |
-| **dossiê de tipos**: um assembly .NET vira um mapa ranqueado pelo alvo, cortado por orçamento de token | não é despejo de 10 mil classes no contexto do agente |
-
-**As mãos já existem e são boas** — `cheatengine-mcp-bridge` (~1,5 mil estrelas), `frida-game-hacking-mcp`,
-`re-mcp` (Cheat Engine + x64dbg + Ghidra) e `rea`. O prumo **não reescreve** nenhuma delas: ele entrega o
-cérebro e o juiz que faltam, e roda em cima do que você já tem.
-
-## Instalação
-
-```bash
-pipx install git+https://github.com/overlord111111/prumo   # CLI
-pip install "prumo[map]"                                    # + leitor de assemblies .NET
-```
-
-Requer Python 3.11+. Sem telemetria, sem conta, sem nuvem.
-
-## Demo em 3 minutos
-
-**1. Qual é o plano para este jogo?** (não toca em nada, só decide)
-
-```bash
-prumo diagnostico --motor unity-mono --ac battleye --modo online
-```
+O nome é o instrumento: uma parede pode parecer reta, e é o fio de prumo que diz se está.
 
 ```
+$ prumo diagnostico --motor unity-mono --ac battleye --modo online
+
 # Plano — Unity (backend Mono) · BattlEye · servidor público / oficial
 
 **Risco:** `alto`
@@ -55,124 +17,155 @@ prumo diagnostico --motor unity-mono --ac battleye --modo online
 - anti-cheat: BattlEye — camadas ativas: usuario, kernel, servidor
 
 ## Alertas
-- ⚠️ BattlEye em servidor público significa corrida de detecção: nada aqui fica 'pronto', e ban é
+- BattlEye em servidor público significa corrida de detecção: nada aqui fica 'pronto', e ban é
   permanente (pode incluir HWID).
 
 ## Alternativas mais seguras
 - reproduzir o mesmo estudo em single-player/LAN do mesmo motor
 ```
 
-**2. O assembly do jogo vira um mapa, ranqueado pelo que você procura**
+## Por que existe
+
+Um agente com ferramenta de memória na mão escreve código de cheat de olho fechado: chuta o offset,
+inventa o nome da classe e não sabe se o endereço que encontrou é a vida ou o contador de munição. O
+resultado é hora perdida e conclusão errada com aparência de certa.
+
+O prumo ataca a parte que falta, em três frentes:
+
+1. **Diagnóstico** — cruza motor da engine, anti-cheat e modo de jogo e devolve o plano com o risco de
+   cada degrau. Serve para não descobrir o custo depois de perder a conta.
+2. **Playbooks** — o método por engine e por anti-cheat, guardado como dado versionado (não como texto
+   solto): passo, verificação exigida e limitação declarada.
+3. **Verificação** — sete checagens que devolvem `PASS`, `FAIL` ou `INDETERMINADO` com o número medido.
+   Nenhum passo do plano avança sem o anterior em `PASS`.
+
+## Instalação
 
 ```bash
-prumo map /caminho/Assembly-CSharp.dll --alvo health --orcamento 3000
+pipx install git+https://github.com/overlord111111/prumo
+pip install "prumo[map]"          # opcional: leitura de assembly .NET
 ```
 
-Saída real (medida num jogo aberto, 957 classes, 3.658 campos — ver `examples/mapa-openra-health.md`):
+Python 3.11+. Sem dependência obrigatória, sem conta, sem telemetria.
+
+## Uso
+
+**Diagnóstico** — não toca no alvo:
+
+```bash
+prumo diagnostico --motor unity-mono --ac nenhum --modo single
+prumo diagnostico --motor unreal --ac eac --modo online --formato json
+```
+
+**Mapa de tipos** — assembly .NET vira dossiê ranqueado pelo termo procurado, cortado por orçamento de
+token (o agente recebe o essencial, não dez mil classes):
+
+```bash
+prumo map "…/Unturned_Data/Managed/Assembly-CSharp.dll" --alvo health --orcamento 3000
+```
+
+Saída medida num jogo de código aberto (OpenRA, MIT — 957 classes, 3.658 campos, 1,4 s):
 
 | # | classe | campos | casados com o alvo |
 |---|---|---|---|
 | 1 | `OpenRA.Actor` | 35 | health:OpenRA.Traits.IHealth |
 | 2 | `OpenRA.Traits.FrozenActor` | 30 | health:OpenRA.Traits.IHealth |
 
-**3. Antes de acreditar, mede**
+**Processo vivo** — adaptador de referência para Linux (`/proc`), sem Cheat Engine, sem Frida:
 
 ```bash
+prumo processo --pid 1234 --modulo libc.so.6      # pid, arquitetura, módulos, check de processo
+prumo ler      --pid 1234 --endereco 0x7f8a...    --tipo int32
+prumo varrer   --pid 1234 --padrao "48 8B 05 ?? ?? 33 44 66 77" --max 5
+prumo escrever --pid 1234 --endereco 0x7f8a...    --tipo int32 --valor 999 --confirmar
+```
+
+**Verificação** — cada check devolve veredito com o número:
+
+```bash
+prumo verificar --check campo      --antes 111 --depois 777
+prumo verificar --check projecao   --matriz "$(cat matriz.txt)" --ponto 10,0,5 --tela 1920x1080 --esperado 960,540
 prumo verificar --check assinatura --padrao "48 8B 05 ?? ?? 33 44 66 77" --buffer-arquivo dump.bin
-prumo verificar --check projecao --matriz "$(cat matriz.txt)" --ponto 10,0,5 --tela 1920x1080 --esperado 960,540
+prumo verificar --lista
 ```
 
 ```
-✔ PASS    assinatura    hits=1 fixos=10B total=12B — única em 0x1F4A0 com 10 bytes fixos
-✘ FAIL    assinatura    hits=3 fixos=10B total=12B — assinatura não é única: 3 hits
-? INDETERMINADO  campo  sem medição — precisa de processo vivo e não há adaptador conectado nesta execução.
+PASS           campo       antes=111.0 depois=777.0 delta=+666.000 — o valor mudou com a ação
+FAIL           assinatura  hits=2 fixos=11B total=13B — assinatura não é única: 2 hits
+INDETERMINADO  projecao    sem medição — faltou --matriz, --ponto ou --tela.
 ```
 
-O `INDETERMINADO` é deliberado: **o prumo prefere dizer "não sei" a inventar um PASS.**
+## Os sete checks
 
-## Os 7 checks
-
-| check | pergunta | como mede |
+| check | pergunta | implementação |
 |---|---|---|
-| `processo` | o alvo certo está aberto, com a arquitetura certa? | PID, módulo base, bitness |
-| `estrutura` | essa classe existe e tem forma plausível? | mapa de tipos: nome, campos, tipos |
-| `campo` | esse campo é mesmo a vida? | **prova por ação**: toma dano e o valor muda |
-| `entidades` | a lista tem entidades de verdade? | contagem > 1, posições distintas |
-| `projecao` | o mundo→tela acerta o pixel? | erro medido contra ponto conhecido (< 2%) |
-| `assinatura` | a AOB sobrevive ao próximo patch? | unicidade + nº de bytes fixos |
-| `ac` | qual anti-cheat está no caminho? | matriz motor × AC × modo |
+| `processo` | o alvo certo está aberto, com arquitetura e módulos esperados? | adaptador |
+| `estrutura` | a classe existe e a forma dela é compatível com o alvo? | mapa de tipos |
+| `campo` | o valor muda quando o jogo muda? | adaptador (observação) ou testemunho antes/depois |
+| `entidades` | a lista tem entidades reais, com posições distintas? | dados extraídos |
+| `projecao` | a matriz mundo→tela acerta um ponto conhecido? | cálculo |
+| `assinatura` | a AOB é única e sobrevive ao próximo patch? | varredura |
+| `ac` | qual anti-cheat está no caminho? | diagnóstico |
 
-Detalhe de cada um: [`docs/checks.md`](docs/checks.md) (gerado dos dados).
+`INDETERMINADO` é estado de primeira classe: o instrumento prefere dizer que não sabe a devolver `PASS`
+sem medição. Detalhe de cada check em [docs/checks.md](docs/checks.md), gerado dos dados.
 
-## Cobertura hoje
+## Cobertura
 
-| motor | leitura | passos |
+| motor | o que se lê | passos |
 |---|---|---|
 | Unity (Mono) | `Assembly-CSharp.dll` — metadados legíveis | 7 |
 | Unity (IL2CPP) | `global-metadata.dat` + `GameAssembly.dll` | 5 |
 | Unreal | GObjects/GNames, UWorld | 5 |
 | Source 2 | schema do jogo + lista de entidades | 3 |
 
-Anti-cheat documentado: **BattlEye · EAC · VAC · Vanguard · nenhum** — com a escada de bypass, o custo em dias
-e o risco de cada degrau.
+Anti-cheat documentado com escada de bypass, custo em dias, risco e detecção: BattlEye, Easy Anti-Cheat,
+Valve Anti-Cheat, Riot Vanguard e "sem anti-cheat". Íntegra em [docs/matriz-ac.md](docs/matriz-ac.md).
 
-| anti-cheat | camadas | degraus na escada |
-|---|---|---|
-| BattlEye | usuário, kernel, servidor | 5 |
-| Easy Anti-Cheat | usuário, kernel, servidor | 4 |
-| Valve Anti-Cheat | usuário, servidor, política | 3 |
-| Riot Vanguard | usuário, kernel, servidor, hardware | 3 |
-| Sem anti-cheat | — | 1 |
+## Integração com as ferramentas que você já usa
 
-## Como o prumo se encaixa no que você já usa
+O prumo não reimplementa memória, AOB ou disassembler. Ele conversa com quem já faz isso:
+`cheatengine-mcp-bridge` (Windows, cerca de 180 ferramentas), `frida-game-hacking-mcp`
+(Linux/Android/Windows), `re-mcp` (Cheat Engine + x64dbg + Ghidra) e `rea` (investigação de binário).
+O contrato de adaptador e como plugar cada um estão em [docs/adaptadores.md](docs/adaptadores.md).
 
-```
-        prumo  (diagnóstico · playbooks · verificação · dossiê de tipos)   ← este projeto
-          │
-          ├── cheatengine-mcp-bridge   (memória, AOB, disasm, breakpoints)
-          ├── frida-game-hacking-mcp   (cross-platform: Linux/Android)
-          ├── re-mcp                   (CE + x64dbg + Ghidra num servidor só)
-          └── rea                      (investigação de binário com o agente)
-```
+## Qualidade e limites
 
-O prumo não substitui nenhum deles. Ele decide **o que fazer**, diz **como saber se deu certo** e entrega
-**contexto cirúrgico** em vez de despejar o binário inteiro no agente.
+Medido, não estimado:
 
-## Metodologia: medir, não opinar
+- varredura de assinatura com curinga: **1.525 MB/s** ancorada no maior trecho fixo, contra 69 MB/s do
+  regex equivalente (bloco real de 268 MB). Projeção para 2 GB: 1,3 s contra 30 s;
+- fluxo completo em processo real — leitura tipada, escrita, detecção de mudança e varredura —
+  reproduzível com `python examples/fluxo-completo-linux.py`;
+- 44 testes, incluindo adaptador com processo filho real, decodificador ECMA-335 e matemática de projeção;
+- documentação derivada dos dados: `prumo docs --check` falha se playbook e documento divergirem.
 
-- **Varredura ancorada**: assinatura com curinga ancorada no maior trecho fixo. Medido em 268 MB reais:
-  `bytes.find` exato **2.690 MB/s**, ancorada **1.525 MB/s**, regex **69 MB/s** (2 GB: 0,8 s · 1,3 s · 30 s).
-  Por isso não há regex no caminho crítico.
-- **Dados → documentação**: `docs/matriz-ac.md`, `docs/motores.md` e `docs/checks.md` são **gerados** do
-  `src/prumo/data/`. A CI falha se alguém editar um sem o outro: documento e playbook não podem divergir.
-- **Teste do próprio instrumento**: 34 testes, incluindo o decodificador ECMA-335 e a matemática de projeção.
-  Integração com assembly real roda quando `PRUMO_TEST_DLL` aponta para um binário.
+Limites declarados:
 
-## Como contribuir
+- o adaptador de referência é Linux (`/proc`). Em Windows, o caminho é plugar Cheat Engine ou Frida pelo
+  contrato de adaptador — não há implementação nativa aqui;
+- playbook é método, não mágica: jogo com símbolos ofuscados exige mais disassembler e menos nome;
+- passar nos checks significa "não caiu nestas verificações", não "é indetectável". Anti-cheat é corrida
+  de detecção, não estado.
 
-Contribuição mais valiosa: **playbook de motor ou de AC** (um arquivo JSON em `src/prumo/data/`), com exemplo
-verificável. Regras e checklist em [`CONTRIBUTING.md`](CONTRIBUTING.md).
+## Contribuir
 
-O que **não** entra, por decisão de projeto: offset de jogo vivo, binário de bypass de anti-cheat, qualquer
-coisa que automatize dano a terceiro.
+A contribuição mais útil é playbook: um arquivo JSON em `src/prumo/data/` com passo, check e limitação.
+Regras e checklist em [CONTRIBUTING.md](CONTRIBUTING.md). Não entram: offset de jogo vivo, binário de
+bypass de anti-cheat e qualquer coisa que automatize dano a terceiro.
 
 ## Aviso
 
-Ferramenta de pesquisa em segurança de software e engenharia reversa. Viola Termos de Serviço de jogos, pode
-resultar em banimento permanente e é de responsabilidade exclusiva de quem usa. Não use em servidor onde isso
-prejudica outras pessoas. Ver [`LICENSE`](LICENSE).
+Ferramenta de pesquisa em segurança de software e engenharia reversa. O uso pode violar Termos de Serviço
+de jogos e resultar em banimento permanente; a responsabilidade é de quem usa. Não use em servidor onde
+isso prejudica outras pessoas. Ver [LICENSE](LICENSE).
 
-## Licença
-
-MIT © Over ([@overlord111111](https://github.com/overlord111111)).
+MIT © Over — [@overlord111111](https://github.com/overlord111111).
 
 ---
 
-## English summary
-
-**prumo** is the missing *judgement layer* for AI agents doing game reverse engineering: a diagnostic that
-decides the path for a given engine + anti-cheat + play mode, playbooks that encode the method per engine and
-per AC, and seven verifiable checks that return `PASS` / `FAIL` / `INDETERMINATE` with the measured number.
-It does not ship cheats, offsets or AC bypasses — it plugs into existing MCP tools (`cheatengine-mcp-bridge`,
-`frida-game-hacking-mcp`, `re-mcp`, `rea`) and adds the brain and the verdict. Docs are generated from data,
-so playbook and documentation cannot drift. MIT.
+**English summary.** `prumo` is the judgement layer for AI agents doing game reverse engineering: a
+diagnostic (engine × anti-cheat × play mode), method playbooks stored as versioned data, and seven checks
+that return `PASS` / `FAIL` / `INDETERMINATE` with the measured number. It ships a Linux process adapter as
+reference and plugs into existing MCP tools for memory access; it does not ship game offsets or
+anti-cheat bypasses. Documentation is generated from the same data the CLI reads, so the two cannot drift.

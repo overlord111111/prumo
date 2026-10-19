@@ -57,10 +57,26 @@ Os checks `processo`, `campo` e `entidades` precisam de processo vivo. Sem adapt
 devolve `INDETERMINADO` com o motivo e o requisito. A alternativa — devolver `PASS` por padrão — tornaria o
 instrumento pior que inútil: ele daria confiança sem prova.
 
+Desde a 0.2.0 esses três checks medem de verdade quando há adaptador. Duas formas de provar:
+
+- **observação** (`prumo verificar --check campo --pid N --endereco 0x… --tipo int32`): lê N amostras e exige
+  variação; valor estável vira `INDETERMINADO`, porque sem ação observada não há prova;
+- **testemunho** (`--antes 111 --depois 777`): compara duas leituras feitas durante a ação e devolve o delta.
+
 ## 5. Reproduzir a prova de campo
 
-O teste de integração roda contra um assembly real, e o binário usado no exemplo é público e de código aberto
-(OpenRA, MIT):
+Fluxo completo, sem jogo e sem Cheat Engine (sobe um processo filho que muda um valor no meio do caminho):
+
+```bash
+python examples/fluxo-completo-linux.py
+```
+
+Saída registrada em [`examples/fluxo-completo-linux.txt`](../examples/fluxo-completo-linux.txt): check de
+processo em `PASS` com 11 módulos, leitura `111` antes e `777` depois da mudança, `campo` em `PASS` com
+delta `+666` e varredura de assinatura com 8 ocorrências — número que serve de lição: a mesma sequência
+aparece no código-fonte carregado em memória, e é por isso que assinatura precisa ser única.
+
+O mapa de tipos roda contra assembly real, e o binário do exemplo é público e de código aberto (OpenRA, MIT):
 
 ```bash
 # baixe o release portable do OpenRA, extraia OpenRA.Game.dll e rode:
@@ -71,3 +87,9 @@ prumo map /caminho/OpenRA.Game.dll --alvo health --orcamento 2500
 Resultado medido nessa execução: **957 classes, 3.658 campos**, com `OpenRA.Actor` no topo do ranking para o
 alvo `health` (campo `health` do tipo `OpenRA.Traits.IHealth`). Saída íntegra em
 [`examples/mapa-openra-health.md`](../examples/mapa-openra-health.md).
+
+## 6. Teste do próprio instrumento
+
+44 testes, e a regra é que cada check tenha caso que passa **e** caso que falha: teste que só cobre o caminho
+feliz não prova nada. O adaptador é exercitado contra processo real (não mock), incluindo escrita recusada
+sem `habilitar_escrita()`, mudança de valor detectada e varredura que encontra o endereço conhecido.

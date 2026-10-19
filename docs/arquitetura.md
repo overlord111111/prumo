@@ -56,7 +56,8 @@ src/prumo/
 ├── cli.py            argparse + despacho
 ├── dados.py          carregamento e validação dos JSON
 ├── diagnostico.py    cruzamento motor × AC × modo → plano
-├── checks.py         os 7 checks + varredura ancorada + projeção
+├── checks.py         os 7 checks + varredura ancorada + projeção + valores tipados
+├── adapters/         contrato (base.py) e referência Linux (local.py, via /proc)
 ├── dotnet.py         leitor ECMA-335 + ranqueamento + dossiê
 ├── docs.py           geração/verificação da documentação derivada
 └── data/             FONTE DE VERDADE (motores, ACs, checks)

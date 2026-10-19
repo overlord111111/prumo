@@ -56,11 +56,49 @@ def _cmd_verificar(args: argparse.Namespace) -> int:
         kwargs["classe"] = args.classe
     if args.alvo:
         kwargs["alvo"] = args.alvo
+    if args.posicoes:
+        pontos = []
+        for item in args.posicoes.split(";"):
+            valores = [float(v) for v in item.replace(",", " ").split()]
+            if len(valores) != 3:
+                print(f"erro: posição inválida {item!r} (esperado x,y,z)", file=sys.stderr)
+                return 2
+            pontos.append(tuple(valores))
+        kwargs["posicoes"] = pontos
+    if args.antes is not None:
+        kwargs["antes"] = args.antes
+    if args.depois is not None:
+        kwargs["depois"] = args.depois
+    if args.amostras:
+        kwargs["amostras"] = args.amostras
+    if args.intervalo:
+        kwargs["intervalo"] = args.intervalo
+    if args.modulo:
+        kwargs["modulo"] = args.modulo
+    if args.minimo:
+        kwargs["minimo"] = args.minimo
+    adaptador = None
+    if args.pid:
+        try:
+            adaptador = _abrir_adaptador(args.pid)
+        except Exception as exc:  # adaptador indisponível: check devolve INDETERMINADO com o motivo
+            print(
+                f"aviso: adaptador indisponível ({exc}); o check vai devolver INDETERMINADO",
+                file=sys.stderr,
+            )
     try:
+        if adaptador is not None:
+            kwargs["adaptador"] = adaptador
+            if args.endereco:
+                kwargs["endereco"] = int(args.endereco, 0)
+            kwargs["tipo"] = args.tipo
         resultado = checks.executar(args.check, **kwargs)
     except (ValueError, FileNotFoundError) as exc:
         print(f"erro: {exc}", file=sys.stderr)
         return 2
+    finally:
+        if adaptador is not None and hasattr(adaptador, "fechar"):
+            adaptador.fechar()
     if args.formato == "json":
         print(json.dumps(resultado.como_dict(), ensure_ascii=False, indent=2))
     else:
@@ -135,6 +173,106 @@ def _cmd_dados(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def _abrir_adaptador(pid: int, escrita: bool = False):
+    from .adapters import abrir
+
+    adaptador = abrir(pid)
+    if escrita:
+        if not hasattr(adaptador, "habilitar_escrita"):
+            raise TypeError("este adaptador não permite escrita")
+        adaptador.habilitar_escrita()
+    return adaptador
+
+
+def _cmd_processo(args: argparse.Namespace) -> int:
+    from .adapters import AdaptadorIndisponivel, FalhaDeLeitura
+
+    try:
+        with _abrir_adaptador(args.pid) as adaptador:
+            info = adaptador.processo()
+            modulos = adaptador.modulos()
+            resultado = checks.check_processo(adaptador, args.modulo)
+    except (AdaptadorIndisponivel, FalhaDeLeitura) as exc:
+        print(f"erro: {exc}", file=sys.stderr)
+        return 2
+    if args.formato == "json":
+        print(
+            json.dumps(
+                {"processo": info, "modulos": [m.__dict__ for m in modulos], "check": resultado.como_dict()},
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
+    print(f"processo  {info['pid']}  {info['arquitetura']}  {info['executavel']}")
+    print(f"modulos   {len(modulos)}")
+    for modulo in modulos[: args.limite]:
+        print(f"  0x{modulo.base:012X}  {modulo.tamanho:>10}  {modulo.nome_modulo}")
+    print()
+    print(resultado)
+    return 0 if resultado.status != checks.FAIL else 1
+
+
+def _cmd_ler(args: argparse.Namespace) -> int:
+    from .adapters import AdaptadorIndisponivel, FalhaDeLeitura
+
+    try:
+        with _abrir_adaptador(args.pid) as adaptador:
+            valor = checks.ler_valor(adaptador, int(args.endereco, 0), args.tipo)
+    except (AdaptadorIndisponivel, FalhaDeLeitura, ValueError) as exc:
+        print(f"erro: {exc}", file=sys.stderr)
+        return 2
+    if args.formato == "json":
+        print(json.dumps({"endereco": int(args.endereco, 0), "tipo": args.tipo, "valor": valor}))
+    else:
+        print(f"{args.tipo} @ {args.endereco} = {valor}")
+    return 0
+
+
+def _cmd_escrever(args: argparse.Namespace) -> int:
+    from .adapters import AdaptadorIndisponivel, FalhaDeLeitura
+
+    if not args.confirmar:
+        print(
+            "erro: escrita exige --confirmar. É a única operação do prumo que altera o alvo.",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        with _abrir_adaptador(args.pid, escrita=True) as adaptador:
+            escritos = checks.escrever_valor(adaptador, int(args.endereco, 0), args.tipo, args.valor)
+    except (AdaptadorIndisponivel, FalhaDeLeitura, PermissionError, ValueError) as exc:
+        print(f"erro: {exc}", file=sys.stderr)
+        return 2
+    print(f"{escritos} byte(s) escritos em {args.endereco}")
+    return 0
+
+
+def _cmd_varrer(args: argparse.Namespace) -> int:
+    from .adapters import AdaptadorIndisponivel, FalhaDeLeitura
+
+    try:
+        padrao = checks.parse_padrao(args.padrao)
+        with _abrir_adaptador(args.pid) as adaptador:
+            achados = adaptador.varrer(padrao, args.limite_mb * 1024 * 1024)
+    except (AdaptadorIndisponivel, FalhaDeLeitura, ValueError) as exc:
+        print(f"erro: {exc}", file=sys.stderr)
+        return 2
+    cabecalho = f"{len(achados)} hit(s) para {args.padrao!r}"
+    if args.formato == "json":
+        print(
+            json.dumps(
+                {"padrao": args.padrao, "hits": [hex(a) for a in achados[: args.max]], "total": len(achados)}
+            )
+        )
+        return 0
+    print(cabecalho)
+    for endereco in achados[: args.max]:
+        print(f"  0x{endereco:012X}")
+    return 0
+
+
 def construir_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="prumo",
@@ -164,6 +302,16 @@ def construir_parser() -> argparse.ArgumentParser:
     ver.add_argument("--mapa-arquivo", dest="mapa_arquivo", help="JSON gerado por `prumo map --saida-json`")
     ver.add_argument("--classe")
     ver.add_argument("--alvo")
+    ver.add_argument("--pid", type=int, help="abre o adaptador local no processo indicado")
+    ver.add_argument("--modulo", help="módulo que precisa estar carregado (check processo)")
+    ver.add_argument("--endereco", help="endereço em hexadecimal ou decimal (check campo)")
+    ver.add_argument("--tipo", default="int32", choices=sorted(checks.TIPOS))
+    ver.add_argument("--amostras", type=int, default=5)
+    ver.add_argument("--intervalo", type=float, default=0.15)
+    ver.add_argument("--antes", type=float)
+    ver.add_argument("--depois", type=float)
+    ver.add_argument("--posicoes", help="x,y,z;x,y,z;... (check entidades)")
+    ver.add_argument("--minimo", type=int, default=2)
     ver.add_argument("--formato", choices=["md", "json"], default="md")
     ver.set_defaults(func=_cmd_verificar)
 
@@ -175,6 +323,36 @@ def construir_parser() -> argparse.ArgumentParser:
     mapa.add_argument("--saida-json", dest="saida_json", help="salva o mapa completo em JSON")
     mapa.add_argument("--limite", type=int, default=20, help="classes no JSON resumido")
     mapa.set_defaults(func=_cmd_map)
+
+    proc = sub.add_parser("processo", help="abre o adaptador, lista módulos e roda o check de processo")
+    proc.add_argument("--pid", type=int, required=True)
+    proc.add_argument("--modulo", help="exige que este módulo esteja carregado")
+    proc.add_argument("--limite", type=int, default=10)
+    proc.add_argument("--formato", choices=["md", "json"], default="md")
+    proc.set_defaults(func=_cmd_processo)
+
+    ler = sub.add_parser("ler", help="lê um valor tipado do processo")
+    ler.add_argument("--pid", type=int, required=True)
+    ler.add_argument("--endereco", required=True)
+    ler.add_argument("--tipo", default="int32", choices=sorted(checks.TIPOS))
+    ler.add_argument("--formato", choices=["md", "json"], default="md")
+    ler.set_defaults(func=_cmd_ler)
+
+    esc = sub.add_parser("escrever", help="escreve um valor (exige --confirmar)")
+    esc.add_argument("--pid", type=int, required=True)
+    esc.add_argument("--endereco", required=True)
+    esc.add_argument("--tipo", default="int32", choices=sorted(checks.TIPOS))
+    esc.add_argument("--valor", type=float, required=True)
+    esc.add_argument("--confirmar", action="store_true")
+    esc.set_defaults(func=_cmd_escrever)
+
+    var = sub.add_parser("varrer", help="varre a memória do processo atrás de uma assinatura")
+    var.add_argument("--pid", type=int, required=True)
+    var.add_argument("--padrao", required=True)
+    var.add_argument("--max", type=int, default=20)
+    var.add_argument("--limite-mb", dest="limite_mb", type=int, default=64)
+    var.add_argument("--formato", choices=["md", "json"], default="md")
+    var.set_defaults(func=_cmd_varrer)
 
     doc = sub.add_parser("docs", help="gera (ou confere) a documentação derivada dos dados")
     doc.add_argument("--destino", default="docs")

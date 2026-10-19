@@ -1,0 +1,33 @@
+# Fluxo completo num processo real (Linux, adaptador local)
+
+Processo filho expõe um array de inteiros e muda o primeiro valor 0,5 s depois.
+PID 76944 · endereço do array 0x7F1C58D3E600
+
+## prumo processo
+processo  76944  x86_64  /home/zion/.hermes/tools/python-3.14.7+20260901-linux-x64/bin/python3.14
+modulos   11
+  0x0000003FF000  139759726854144  python3.14
+  0x7F1C58A00000     3059712  locale-archive
+  0x7F1C58E00000     2121728  libc.so.6
+  0x7F1C5909B000      364544  LC_CTYPE
+  0x7F1C590F9000       20480  librt.so.1
+  0x7F1C590FE000      954368  libm.so.6
+
+✔ PASS           processo    pid=76944 arch=x86_64 modulos=11 — alvo acessível: /home/zion/.hermes/tools/python-3.14.7+20260901-linux-x64/bin/python3.14
+
+## prumo ler (antes da ação)
+int32 @ 0x7f1c58d3e600 = 111
+
+## prumo ler (depois da ação)
+int32 @ 0x7f1c58d3e600 = 777
+
+## prumo verificar --check campo (testemunho antes/depois)
+✔ PASS           campo       antes=111.0 depois=777.0 delta=+666.000 — o valor mudou com a ação
+
+## prumo varrer (assinatura com 12 bytes fixos)
+8 hit(s) para '50 52 55 4D 4F 2D 61 73 73 69 6E 61'
+  0x00003111D4F7
+  0x0000311201A7
+  0x000031175962
+  0x7F1C58965070
+  0x7F1C589A0503

@@ -238,6 +238,133 @@ def check_estrutura(mapa: dict[str, Any], classe: str, alvo: str | None = None) 
     return Resultado("estrutura", PASS, medida, "classe existe com campos (sem alvo informado)")
 
 
+
+# --------------------------------------------------------------------------- processo vivo
+
+TIPOS = {
+    "int8": ("b", 1), "uint8": ("B", 1),
+    "int16": ("h", 2), "uint16": ("H", 2),
+    "int32": ("i", 4), "uint32": ("I", 4),
+    "int64": ("q", 8), "uint64": ("Q", 8),
+    "float": ("f", 4), "double": ("d", 8),
+}
+
+
+def ler_valor(adaptador: Any, endereco: int, tipo: str) -> float:
+    """Lê um valor tipado de um endereço, via adaptador."""
+    import struct
+
+    if tipo not in TIPOS:
+        raise ValueError(f"tipo desconhecido: {tipo} (válidos: {', '.join(TIPOS)})")
+    formato, tamanho = TIPOS[tipo]
+    bruto = adaptador.ler(endereco, tamanho)
+    if len(bruto) != tamanho:
+        raise ValueError(f"leitura curta em 0x{endereco:X}: {len(bruto)} de {tamanho} bytes")
+    return struct.unpack("<" + formato, bruto)[0]
+
+
+def escrever_valor(adaptador: Any, endereco: int, tipo: str, valor: float) -> int:
+    import struct
+
+    if tipo not in TIPOS:
+        raise ValueError(f"tipo desconhecido: {tipo}")
+    formato, _ = TIPOS[tipo]
+    return adaptador.escrever(endereco, struct.pack("<" + formato, valor))
+
+
+def check_processo(adaptador: Any, modulo_esperado: str | None = None) -> Resultado:
+    """O alvo certo está aberto, com arquitetura conhecida e módulo localizável?"""
+    info = adaptador.processo()
+    modulos = adaptador.modulos()
+    arquitetura = info.get("arquitetura", "desconhecida")
+    executavel = info.get("executavel", "?")
+    medida = f"pid={info.get('pid')} arch={arquitetura} modulos={len(modulos)}"
+    if arquitetura not in ("x86_64", "i386"):
+        return Resultado("processo", FAIL, medida, f"arquitetura não reconhecida: {arquitetura}")
+    if len(modulos) < 2:
+        return Resultado(
+            "processo", FAIL, medida, "menos de 2 módulos mapeados: processo não carregou bibliotecas"
+        )
+    if modulo_esperado:
+        encontrado = next(
+            (m for m in modulos if m.nome_modulo.lower() == modulo_esperado.lower()
+             or m.nome.lower().endswith(modulo_esperado.lower())),
+            None,
+        )
+        if encontrado is None:
+            disponiveis = ", ".join(m.nome_modulo for m in modulos[:6])
+            return Resultado(
+                "processo",
+                FAIL,
+                medida,
+                f"módulo {modulo_esperado!r} não está carregado (tem: {disponiveis})",
+            )
+        medida += f" base={encontrado.base:#x}"
+    return Resultado("processo", PASS, medida, f"alvo acessível: {executavel}")
+
+
+def check_campo(
+    adaptador: Any | None = None,
+    endereco: int | None = None,
+    tipo: str = "int32",
+    amostras: int = 5,
+    intervalo: float = 0.15,
+    antes: float | None = None,
+    depois: float | None = None,
+) -> Resultado:
+    """Prova por ação: o valor muda quando o jogo muda?
+
+    Dois modos:
+    - observação (`adaptador` + `endereco`): lê N amostras e exige variação;
+    - testemunho (`antes`/`depois`): compara duas leituras feitas durante uma ação.
+    """
+    import time
+
+    if antes is not None and depois is not None:
+        if antes == depois:
+            return Resultado(
+                "campo", INDETERMINADO, f"antes={antes} depois={depois}",
+                "valor não mudou durante a ação: ou não é o campo, ou a ação não afetou o valor",
+            )
+        delta = depois - antes
+        return Resultado(
+            "campo",
+            PASS,
+            f"antes={antes} depois={depois} delta={delta:+.3f}",
+            "o valor mudou com a ação",
+        )
+    if adaptador is None or endereco is None:
+        return indeterminado("campo", "faltou adaptador (--pid) ou endereço (--endereco).")
+    valores = []
+    for indice in range(max(2, amostras)):
+        valores.append(ler_valor(adaptador, endereco, tipo))
+        if indice + 1 < amostras:
+            time.sleep(intervalo)
+    distintos = sorted(set(valores))
+    medida = f"{len(valores)} amostras, {len(distintos)} valor(es) distinto(s)"
+    if len(distintos) == 1:
+        return Resultado(
+            "campo", INDETERMINADO, medida,
+            f"valor estável em {valores[0]}: nenhuma ação observada — provoque dano/movimento e repita",
+        )
+    return Resultado("campo", PASS, medida, f"variação observada: {valores[0]} -> {valores[-1]}")
+
+
+def check_entidades(posicoes: list[tuple[float, float, float]], minimo: int = 2) -> Resultado:
+    """A lista encontrada contém entidades reais (contagem e posições distintas)?"""
+    if len(posicoes) < minimo:
+        return Resultado("entidades", FAIL, f"{len(posicoes)} entidade(s)", f"menos que o mínimo de {minimo}")
+    invalidas = [p for p in posicoes if any(v != v or v in (float("inf"), float("-inf")) for v in p)]
+    if invalidas:
+        return Resultado("entidades", FAIL, f"{len(posicoes)} entidades, {len(invalidas)} inválidas",
+                         "posição com NaN/inf: leitura em endereço errado")
+    distintas = {(round(p[0], 2), round(p[1], 2), round(p[2], 2)) for p in posicoes}
+    medida = f"{len(posicoes)} entidades, {len(distintas)} posições distintas"
+    if len(distintas) < minimo:
+        return Resultado("entidades", FAIL, medida, "todas as posições iguais: não é lista de entidades")
+    return Resultado("entidades", PASS, medida, "contagem e posições compatíveis com lista real")
+
+
 def executar(check_id: str, **kwargs: Any) -> Resultado:
     """Despacha um check. Os que exigem processo vivo devolvem INDETERMINADO honesto."""
     if check_id == "assinatura":
@@ -267,10 +394,26 @@ def executar(check_id: str, **kwargs: Any) -> Resultado:
         if mapa is None or classe is None:
             return indeterminado(check_id, "faltou --mapa-arquivo e --classe.")
         return check_estrutura(mapa, classe, kwargs.get("alvo"))
-    if check_id in ("processo", "campo", "entidades"):
-        return indeterminado(
-            check_id, "este check precisa de processo vivo e não há adaptador conectado nesta execução."
+    if check_id == "processo":
+        adaptador = kwargs.get("adaptador")
+        if adaptador is None:
+            return indeterminado(check_id, "faltou --pid para abrir o adaptador.")
+        return check_processo(adaptador, kwargs.get("modulo"))
+    if check_id == "campo":
+        return check_campo(
+            kwargs.get("adaptador"),
+            kwargs.get("endereco"),
+            kwargs.get("tipo", "int32"),
+            int(kwargs.get("amostras", 5)),
+            float(kwargs.get("intervalo", 0.15)),
+            kwargs.get("antes"),
+            kwargs.get("depois"),
         )
+    if check_id == "entidades":
+        posicoes = kwargs.get("posicoes")
+        if not posicoes:
+            return indeterminado(check_id, "faltou --posicoes (x,y,z;x,y,z;...).")
+        return check_entidades(posicoes, int(kwargs.get("minimo", 2)))
     if check_id == "ac":
         return indeterminado(check_id, "rode `prumo diagnostico` para o cruzamento de motor + AC + modo.")
     raise ValueError(f"check desconhecido: {check_id}")
