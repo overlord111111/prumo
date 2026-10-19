@@ -13,14 +13,14 @@ Versão **0.2.0** · adaptador de referência em Linux · quatro motores e cinco
 ```
 $ prumo diagnostico --motor unity-mono --ac battleye --modo online
 
-# Plano — Unity (backend Mono) · BattlEye · servidor público / oficial
+# Plano — Unity (Mono) · BattlEye · servidor público
 
 **Risco:** alto
-- modo: servidor público / oficial — ban é permanente e pode alcançar o hardware (HWID); a conta é sua
+- modo: servidor público — ban permanente, pode alcançar o hardware
 - anti-cheat: BattlEye — camadas ativas: usuario, kernel, servidor
 
 ## Alertas
-- aviso: BattlEye em servidor público significa corrida de detecção: nada aqui fica 'pronto'
+- aviso: aqui não existe "pronto": é corrida de detecção
 ```
 
 ## Comece por aqui
