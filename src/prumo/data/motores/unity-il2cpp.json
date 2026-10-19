@@ -1,0 +1,69 @@
+{
+  "id": "unity-il2cpp",
+  "nome": "Unity (backend IL2CPP)",
+  "resumo": "O C# é convertido para C++ e compilado nativo; os nomes sobrevivem em global-metadata.dat, e o código em GameAssembly.dll.",
+  "como_funciona": "IL2CPP gera <jogo>_Data/il2cpp_data/Metadata/global-metadata.dat (nomes e assinaturas) e GameAssembly.dll (código nativo). Dá para recuperar a estrutura de tipos lendo a metadata; os endereços vêm do binário nativo.",
+  "acesso": {
+    "tipo": "metadata+nativo",
+    "alvo": "global-metadata.dat + GameAssembly.dll",
+    "observacao": "A metadata não muda com o patch do jogo na mesma proporção que o binário; os deslocamentos nativos mudam quase sempre."
+  },
+  "passos": [
+    {
+      "id": "I1",
+      "titulo": "Confirmar IL2CPP",
+      "detalhe": "Existência de GameAssembly.dll + il2cpp_data/Metadata/global-metadata.dat confirma o backend.",
+      "checks": [
+        "processo"
+      ],
+      "risco": "nenhum"
+    },
+    {
+      "id": "I2",
+      "titulo": "Recuperar a estrutura de tipos",
+      "detalhe": "Ler a metadata para extrair classes, campos e assinaturas. Guarde a versão da metadata: layouts mudam entre versões do Unity.",
+      "checks": [
+        "estrutura"
+      ],
+      "risco": "nenhum"
+    },
+    {
+      "id": "I3",
+      "titulo": "Ligar tipo a endereço",
+      "detalhe": "Com o tipo localizado, achar no binário nativo onde ele é instanciado e qual o deslocamento de cada campo. Assinatura primeiro, disasm depois.",
+      "checks": [
+        "assinatura",
+        "campo"
+      ],
+      "risco": "baixo"
+    },
+    {
+      "id": "I4",
+      "titulo": "Provar o campo por ação",
+      "detalhe": "Mesma regra do Mono: só é fato depois de ver o valor mudar com a ação. Antes disso é hipótese.",
+      "checks": [
+        "campo"
+      ],
+      "risco": "baixo"
+    },
+    {
+      "id": "I5",
+      "titulo": "Enumerar entidades e projetar",
+      "detalhe": "Contêiner de entidades, contagem e posições distintas; matriz de câmera validada com `prumo verificar projecao`.",
+      "checks": [
+        "entidades",
+        "projecao"
+      ],
+      "risco": "baixo"
+    }
+  ],
+  "limitacoes": [
+    "Sem a metadata correspondente à versão exata do jogo, os índices de tipo não batem.",
+    "Deslocamentos nativos mudam a cada patch: tudo que for endereço precisa de assinatura, não de constante.",
+    "Este playbook cobre leitura de estrutura; não cobre contorno de anti-cheat."
+  ],
+  "referencias": [
+    "Il2CppDumper / Cpp2IL - recuperação de estrutura IL2CPP",
+    "Documentação Unity: scripting backends"
+  ]
+}

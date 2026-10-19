@@ -1,0 +1,42 @@
+{
+  "id": "source2",
+  "nome": "Source 2",
+  "resumo": "Engine da Valve (CS2, Dota 2). Entidades ficam numa árvore de cenas com schema de tipos publicado nos arquivos do jogo.",
+  "como_funciona": "Source 2 usa schemas (arquivos de tipo do próprio jogo) e uma lista de entidades por classe. O schema dá nomes de campo sem engenharia reversa pesada; o que exige trabalho é chegar no ponteiro da lista e na matriz da câmera.",
+  "acesso": {
+    "tipo": "schema+ponteiro",
+    "alvo": "lista de entidades por classe + schema do jogo",
+    "observacao": "Este playbook é o mais 'documentado por terceiros': a comunidade publica offsets e nomes de schema a cada atualização."
+  },
+  "passos": [
+    {
+      "id": "S1",
+      "titulo": "Ler o schema",
+      "detalhe": "Identificar o tipo de entidade desejado e os campos (ex.: vida, posição, time) nos arquivos de schema do jogo.",
+      "checks": ["estrutura"],
+      "risco": "nenhum"
+    },
+    {
+      "id": "S2",
+      "titulo": "Achar a lista de entidades",
+      "detalhe": "Assinatura sobre o código que percorre a lista por classe; validar pela contagem de entidades vivas.",
+      "checks": ["assinatura", "entidades"],
+      "risco": "baixo"
+    },
+    {
+      "id": "S3",
+      "titulo": "Validar posição e projeção",
+      "detalhe": "Vetor de origem acompanha o movimento; matriz de view validada com `prumo verificar projecao`.",
+      "checks": ["campo", "projecao"],
+      "risco": "baixo"
+    }
+  ],
+  "limitacoes": [
+    "Atualizações frequentes quebram assinatura: o playbook exige refixar a cada patch.",
+    "Jogos competitivos da Valve têm VAC e detecção server-side: leia antes o playbook ac-vac."
+  ],
+  "referencias": [
+    "Valve Developer Community: Source 2 entity system",
+    "Schemas publicados nos arquivos do jogo"
+  ]
+}

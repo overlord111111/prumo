@@ -1,0 +1,54 @@
+{
+  "id": "vac",
+  "nome": "Valve Anti-Cheat (VAC)",
+  "resumo": "Anti-cheat de modo usuário, com banimento atrasado (ban wave) e escopo por jogo; não usa driver de kernel.",
+  "camadas": {
+    "usuario": "verificação de integridade e assinaturas dentro do modo usuário",
+    "kernel": "não usa driver de kernel",
+    "servidor": "detecção server-side do próprio jogo (física, alcance de tiro, posição)",
+    "politica": "ban atrasado, permanente e aplicado por onda"
+  },
+  "detecta": [
+    "arquivos do jogo alterados",
+    "assinaturas conhecidas de cheats",
+    "injeção de DLL no processo",
+    "comportamento impossível detectado pelo servidor"
+  ],
+  "nao_detecta": [
+    "leitura externa de memória por ferramenta separada (mas o servidor ainda pode detectar comportamento)",
+    "macro/entrada sintética por hardware externo"
+  ],
+  "escada": [
+    {
+      "nivel": 0,
+      "nome": "Servidor local/LAN",
+      "como": "servidor próprio com VAC desligado",
+      "custo_dias": 0,
+      "risco": "nenhum",
+      "detectabilidade": "n/a"
+    },
+    {
+      "nivel": 1,
+      "nome": "Partida casual com VAC ligado",
+      "como": "qualquer alteração no cliente",
+      "custo_dias": 0,
+      "risco": "alto",
+      "detectabilidade": "o ban não vem na hora: vem depois, por onda"
+    },
+    {
+      "nivel": 2,
+      "nome": "Externo sem tocar no cliente",
+      "como": "leitura de memória por ferramenta separada + overlay",
+      "custo_dias": 3,
+      "risco": "médio",
+      "detectabilidade": "menor para o AC, maior para o servidor (comportamento)"
+    }
+  ],
+  "notas": [
+    "O ponto pedagógico do VAC é o ban atrasado: quem testa 'funcionou hoje' não sabe o resultado.",
+    "Não cobre contorno de detecção server-side do jogo."
+  ],
+  "referencias": [
+    "Documentação pública da Valve sobre VAC e política de banimentos"
+  ]
+}

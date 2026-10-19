@@ -1,0 +1,16 @@
+# Demonstração dos checks (19/10/2026)
+
+## assinatura — única (PASS)
+✔ PASS           assinatura  hits=1 fixos=11B total=13B — única em 0x40 com 11 bytes fixos
+
+## assinatura — repetida (FAIL)
+✘ FAIL           assinatura  hits=2 fixos=11B total=13B — assinatura não é única: 2 hits
+
+## projecao — ponto no centro (PASS)
+✔ PASS           projecao    (960.0, 540.0) erro=0.00% — dentro da tolerância de 2%
+
+## projecao — alvo errado (FAIL)
+✘ FAIL           projecao    (960.0, 540.0) erro=44.79% — acima da tolerância de 2%
+
+## campo — sem processo vivo (INDETERMINADO)
+? INDETERMINADO  campo       sem medição — este check precisa de processo vivo e não há adaptador conectado nesta execução. Requer: execução de uma ação no jogo (tomar dano, mover) e leitura antes/depois.

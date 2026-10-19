@@ -1,0 +1,54 @@
+{
+  "id": "vanguard",
+  "nome": "Riot Vanguard",
+  "resumo": "Anti-cheat que carrega o driver no boot do Windows e mantém vigilância permanente, inclusive fora do jogo.",
+  "camadas": {
+    "usuario": "serviço residente em execução desde o boot",
+    "kernel": "driver carregado no boot (não sob demanda)",
+    "servidor": "telemetria e bans",
+    "hardware": "exige recursos de virtualização: bloqueia uso de hypervisor próprio"
+  },
+  "detecta": [
+    "drivers não assinados ou conhecidos por cheats",
+    "instrumentação e depuração no processo do jogo",
+    "módulos injetados e leitura de memória suspeita",
+    "máquina virtual / hypervisor não autorizado"
+  ],
+  "nao_detecta": [
+    "nada prático em software: a superfície em modo usuário e kernel está coberta",
+    "técnicas puramente externas por hardware (captura de vídeo de outro dispositivo)"
+  ],
+  "escada": [
+    {
+      "nivel": 0,
+      "nome": "Sem AC no caminho",
+      "como": "não existe: o driver está ativo enquanto o Windows liga",
+      "custo_dias": 0,
+      "risco": "n/a",
+      "detectabilidade": "n/a"
+    },
+    {
+      "nivel": 1,
+      "nome": "Desligar o driver",
+      "como": "exige desabilitar a proteção no boot",
+      "custo_dias": 1,
+      "risco": "muito alto",
+      "detectabilidade": "o jogo não inicia; a conta é perdida"
+    },
+    {
+      "nivel": 2,
+      "nome": "Burlar por software",
+      "como": "não recomendado e fora do escopo deste projeto",
+      "custo_dias": 0,
+      "risco": "muito alto",
+      "detectabilidade": "praticamente certa"
+    }
+  ],
+  "notas": [
+    "Objetivo deste playbook: informar, para que o leitor escolha outro alvo. Não é um alvo de laboratório.",
+    "Nenhuma técnica daqui deve ser aplicada em jogo com Vanguard."
+  ],
+  "referencias": [
+    "Comunicados públicos da Riot sobre funcionamento do Vanguard"
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "battleye",
+  "nome": "BattlEye",
+  "resumo": "Anti-cheat com componente de kernel (BEDaisy.sys) carregado junto com o jogo, além de varredura de memória e heartbeat para o servidor.",
+  "camadas": {
+    "usuario": "BEService/BEClient, verificação de módulos e integridade de arquivos",
+    "kernel": "BEDaisy.sys (~7,9 MB, ofuscado, carregado sob demanda; também atua como minifilter de filesystem)",
+    "servidor": "heartbeat do cliente, kick/ban por relatório de admin, checagens server-side do próprio jogo"
+  },
+  "detecta": [
+    "handle externo de leitura/escrita no processo do jogo (ObRegisterCallbacks remove PROCESS_VM_READ/WRITE/OPERATION)",
+    "módulo injetado na lista de módulos do processo",
+    "alteração de arquivo do jogo (ASSINATURA de DLL trocada -> kick 'corrupted file')",
+    "padrões de memória conhecidos (assinatura/heurística)",
+    "driver não assinado / driver mapeado com rastros (quando a versão tem essa checagem ativa)"
+  ],
+  "nao_detecta": [
+    "leitura de memória feita por driver próprio, se o callback for neutralizado e a leitura não gerar handle observável",
+    "cliente Linux, onde o componente é apenas uma biblioteca de heartbeat",
+    "comportamento do jogador que não infrinja heurística de servidor (ex.: ESP puro, sem aimlock)"
+  ],
+  "escada": [
+    {
+      "nivel": 0,
+      "nome": "Sem AC no caminho",
+      "como": "servidor privado/LAN com BattlEye desligado na configuração do servidor",
+      "custo_dias": 0,
+      "risco": "nenhum",
+      "detectabilidade": "n/a"
+    },
+    {
+      "nivel": 1,
+      "nome": "Desligar o módulo do cliente",
+      "como": "ajustar o carregador do BE para não carregar o módulo e injetar normalmente",
+      "custo_dias": 1,
+      "risco": "alto",
+      "detectabilidade": "servidores com verificação de integridade expulsam em minutos (kick por arquivo corrompido) e registram flag"
+    },
+    {
+      "nivel": 2,
+      "nome": "Injeção por driver mapeado",
+      "como": "mapear um driver em kernel e injetar sem gerar handle observável",
+      "custo_dias": 5,
+      "risco": "alto",
+      "detectabilidade": "depende do build; rastros de driver mapeado são um vetor conhecido de detecção"
+    },
+    {
+      "nivel": 3,
+      "nome": "Externo com driver próprio de leitura",
+      "como": "leitura por kernel (CR3) sem módulo dentro do jogo; overlay por cima",
+      "custo_dias": 10,
+      "risco": "médio",
+      "detectabilidade": "é o caminho de menor superfície: não há módulo no jogo; o vetor passa a ser o driver e o comportamento"
+    },
+    {
+      "nivel": 4,
+      "nome": "Corrida contínua",
+      "como": "manter nível 3 com renovação de driver/assinaturas a cada atualização do AC",
+      "custo_dias": 0,
+      "risco": "alto",
+      "detectabilidade": "não existe 'pronto': é manutenção permanente e sempre há janela de ban"
+    }
+  ],
+  "notas": [
+    "O componente de kernel é carregado sob demanda junto com o jogo e descarregado ao sair: a janela de análise é a partida.",
+    "Kick por integridade de arquivo não é o mesmo que ban, mas gera flag.",
+    "Em servidores oficiais, o risco de ban é permanente e pode alcançar o hardware (HWID)."
+  ],
+  "referencias": [
+    "Análise pública do BEDaisy.sys (engenharia reversa estática, 2026)",
+    "Estudo acadêmico sobre técnicas do BattlEye (ACM, 2025)"
+  ]
+}

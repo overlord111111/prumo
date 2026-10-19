@@ -1,0 +1,61 @@
+{
+  "id": "eac",
+  "nome": "Easy Anti-Cheat",
+  "resumo": "Anti-cheat com driver de kernel e forte peso em detecção por assinatura e integridade; comum em jogos competitivos.",
+  "camadas": {
+    "usuario": "serviço de usuário + verificação de integridade do jogo",
+    "kernel": "driver de kernel carregado com o jogo",
+    "servidor": "telemetria e bans por onda (ban wave)"
+  },
+  "detecta": [
+    "módulos injetados e handles de leitura/escrita no processo",
+    "assinaturas de cheats conhecidos",
+    "alteração de binários/arquivos do jogo",
+    "depuradores e instrumentação anexada"
+  ],
+  "nao_detecta": [
+    "técnicas externas por hardware (captura de vídeo e entrada sintética em outro dispositivo)",
+    "comportamento discreto que não aciona heurística de servidor"
+  ],
+  "escada": [
+    {
+      "nivel": 0,
+      "nome": "Sem AC no caminho",
+      "como": "modo offline/LAN com AC desligado quando o jogo permite",
+      "custo_dias": 0,
+      "risco": "nenhum",
+      "detectabilidade": "n/a"
+    },
+    {
+      "nivel": 1,
+      "nome": "Desligar componente do cliente",
+      "como": "impedir o carregamento do módulo do AC",
+      "custo_dias": 1,
+      "risco": "muito alto",
+      "detectabilidade": "a maioria dos títulos com EAC recusa iniciar sem o componente"
+    },
+    {
+      "nivel": 2,
+      "nome": "Injeção por driver mapeado",
+      "como": "mapear driver próprio e injetar sem handle observável",
+      "custo_dias": 7,
+      "risco": "muito alto",
+      "detectabilidade": "EAC investe pesado em detecção de driver e integridade; vida curta"
+    },
+    {
+      "nivel": 3,
+      "nome": "Externo por kernel",
+      "como": "leitura por driver + overlay, sem módulo no jogo",
+      "custo_dias": 14,
+      "risco": "alto",
+      "detectabilidade": "melhor superfície, ainda com ban wave"
+    }
+  ],
+  "notas": [
+    "Títulos com EAC normalmente não oferecem modo offline: o laboratório honesto é escolher outro alvo.",
+    "Ban wave significa que a punição não vem na hora: a conta pode ser perdida semanas depois."
+  ],
+  "referencias": [
+    "Documentação pública do Easy Anti-Cheat para desenvolvedores"
+  ]
+}

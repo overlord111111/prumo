@@ -1,0 +1,31 @@
+{
+  "id": "nenhum",
+  "nome": "Sem anti-cheat",
+  "resumo": "Alvo de laboratório: jogo single-player, servidor LAN próprio ou servidor de comunidade sem AC.",
+  "camadas": {
+    "usuario": "nenhuma",
+    "kernel": "nenhuma",
+    "servidor": "pode existir checagem de admin, mas não há AC automatizado"
+  },
+  "detecta": [],
+  "nao_detecta": [
+    "qualquer leitura de memória ou overlay",
+    "injeção de módulo",
+    "alteração de valores"
+  ],
+  "escada": [
+    {
+      "nivel": 0,
+      "nome": "Laboratório limpo",
+      "como": "single-player, LAN ou servidor privado sem AC",
+      "custo_dias": 0,
+      "risco": "nenhum",
+      "detectabilidade": "n/a"
+    }
+  ],
+  "notas": [
+    "É aqui que se aprende: sem AC, o único limite é a engine.",
+    "Mesmo em servidor privado, se houver outros jogadores, a regra de respeito se aplica."
+  ],
+  "referencias": []
+}

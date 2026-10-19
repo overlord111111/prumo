@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# Artefatos locais de análise (nunca versionar binário de jogo)
+*.dll
+*.exe
+*.bin
+*.dump
+mapa.json
+matriz.txt
+
+# Sistema
+.DS_Store
+Thumbs.db

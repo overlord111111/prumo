@@ -1,0 +1,57 @@
+{
+  "id": "unreal",
+  "nome": "Unreal Engine",
+  "resumo": "Objetos do jogo (UObject) são instâncias de classes C++ com RTTI e uma tabela global de nomes; a lista de atores do mundo é acessível por ponteiro.",
+  "como_funciona": "UE mantém GNames (ou o equivalente por versão) e GObjects/UObjectArray. Cada UObject tem vtable, e o nome da classe vem por FName -> índice -> tabela de strings. A partir daí dá para atravessar o mundo (UWorld -> Level -> Actors).",
+  "acesso": {
+    "tipo": "nativo",
+    "alvo": "GObjects/GNames + UWorld",
+    "observacao": "Sem nomes legíveis por padrão (são FName), mas o encadeamento de estruturas é estável o suficiente para assinatura."
+  },
+  "passos": [
+    {
+      "id": "U1",
+      "titulo": "Localizar GObjects e GNames",
+      "detalhe": "São os dois ponteiros que abrem tudo. Mudam de posição a cada build: achar por assinatura, nunca por constante.",
+      "checks": ["assinatura"],
+      "risco": "baixo"
+    },
+    {
+      "id": "U2",
+      "titulo": "Resolver o nome de uma classe conhecida",
+      "detalhe": "Com GNames operando, um índice de FName tem de devolver texto legível (ex.: uma classe de player). Se devolver lixo, a versão do layout está errada.",
+      "checks": ["estrutura"],
+      "risco": "baixo"
+    },
+    {
+      "id": "U3",
+      "titulo": "Chegar no UWorld",
+      "detalhe": "Do objeto de jogo (GameInstance/PlayerController) até UWorld -> PersistentLevel -> Actors. Valide pela contagem de atores.",
+      "checks": ["entidades"],
+      "risco": "baixo"
+    },
+    {
+      "id": "U4",
+      "titulo": "Ler a raiz do componente",
+      "detalhe": "Posição vem do USceneComponent raiz do actor. Confirme com movimento: o vetor tem de acompanhar.",
+      "checks": ["campo"],
+      "risco": "baixo"
+    },
+    {
+      "id": "U5",
+      "titulo": "Projetar e fixar assinatura",
+      "detalhe": "Matriz da câmera do PlayerCameraManager; valide com `prumo verificar projecao` e fixe assinaturas dos ponteiros globais.",
+      "checks": ["projecao", "assinatura"],
+      "risco": "baixo"
+    }
+  ],
+  "limitacoes": [
+    "Layout de UObject varia por versão da engine e por build customizada do estúdio.",
+    "Jogos com ofuscação de símbolos exigem mais disasm e menos nome.",
+    "Não cobre contorno de anti-cheat."
+  ],
+  "referencias": [
+    "Documentação Unreal: UObject, FName, UWorld",
+    "Unreal Engine reflection system"
+  ]
+}

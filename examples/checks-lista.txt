@@ -1,0 +1,7 @@
+processo     processo-vivo  O processo alvo está aberto, com a arquitetura correta e o módulo base identificado?
+estrutura    estatica       O tipo/classe que eu escolhi existe e tem forma plausível para o que eu procuro?
+campo        processo-vivo  Este campo é mesmo a vida/posição que eu procuro?
+entidades    processo-vivo  A lista que eu encontrei contém entidades reais do mundo?
+projecao     estatica       A matriz mundo->tela projeta um ponto conhecido no lugar certo?
+assinatura   estatica       A assinatura (AOB) é única e tem bytes fixos suficientes para sobreviver a um patch?
+ac           conhecimento   Qual anti-cheat está no caminho e o que ele detecta?

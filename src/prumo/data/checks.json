@@ -1,0 +1,54 @@
+{
+  "versao": 1,
+  "checks": [
+    {
+      "id": "processo",
+      "pergunta": "O processo alvo está aberto, com a arquitetura correta e o módulo base identificado?",
+      "implementacao": "processo-vivo",
+      "requer": "adaptador de processo (Cheat Engine bridge ou Frida MCP) ou execução local com permissão",
+      "por_que": "Todo o resto depende de estar no processo certo: módulo errado invalida qualquer endereço."
+    },
+    {
+      "id": "estrutura",
+      "pergunta": "O tipo/classe que eu escolhi existe e tem forma plausível para o que eu procuro?",
+      "implementacao": "estatica",
+      "requer": "assembly .NET (mapa de tipos) ou lista de tipos da engine",
+      "por_que": "Nome parecido não é prova: contagem de campos e tipos plausíveis separam candidato de coincidência."
+    },
+    {
+      "id": "campo",
+      "pergunta": "Este campo é mesmo a vida/posição que eu procuro?",
+      "implementacao": "processo-vivo",
+      "requer": "execução de uma ação no jogo (tomar dano, mover) e leitura antes/depois",
+      "por_que": "É a única prova aceitável: o valor tem de mudar com a ação, na direção e na magnitude esperadas."
+    },
+    {
+      "id": "entidades",
+      "pergunta": "A lista que eu encontrei contém entidades reais do mundo?",
+      "implementacao": "processo-vivo",
+      "requer": "leitura da cadeia de contêiner + permissão de leitura no processo",
+      "por_que": "Contagem > 1 e posições distintas separam uma lista de verdade de um array qualquer."
+    },
+    {
+      "id": "projecao",
+      "pergunta": "A matriz mundo->tela projeta um ponto conhecido no lugar certo?",
+      "implementacao": "estatica",
+      "requer": "matriz 4x4 de view-projection, ponto de mundo e tamanho da tela",
+      "por_que": "Sem essa checagem, caixas aparecem deslocadas e o erro é atribuído ao código errado."
+    },
+    {
+      "id": "assinatura",
+      "pergunta": "A assinatura (AOB) é única e tem bytes fixos suficientes para sobreviver a um patch?",
+      "implementacao": "estatica",
+      "requer": "padrão com curingas + buffer ou região de memória",
+      "por_que": "Assinatura com múltiplos hits ou poucos bytes fixos quebra no próximo patch."
+    },
+    {
+      "id": "ac",
+      "pergunta": "Qual anti-cheat está no caminho e o que ele detecta?",
+      "implementacao": "conhecimento",
+      "requer": "motor + AC + modo de jogo (o diagnóstico já cruza isso)",
+      "por_que": "Escolher o alvo errado queima conta: a matriz de AC define o risco antes do primeiro passo."
+    }
+  ]
+}

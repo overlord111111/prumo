@@ -1,0 +1,71 @@
+{
+  "id": "unity-mono",
+  "nome": "Unity (backend Mono)",
+  "resumo": "O jogo é C# compilado em MSIL dentro de Assembly-CSharp.dll: nomes de classe, campo e método continuam legíveis.",
+  "como_funciona": "Unity com backend Mono entrega os assemblies em <jogo>_Data/Managed/*.dll. O IL é reversível por leitura (dnSpy/ILSpy/prumo map): não há ofuscação por padrão.",
+  "acesso": {
+    "tipo": "metadata",
+    "alvo": "<jogo>_Data/Managed/Assembly-CSharp.dll",
+    "observacao": "Se o jogo for IL2CPP, o caminho é outro: existe global-metadata.dat e o playbook aplicável é unity-il2cpp."
+  },
+  "passos": [
+    {
+      "id": "M1",
+      "titulo": "Confirmar o backend (Mono ou IL2CPP)",
+      "detalhe": "Procure a pasta Managed com Assembly-CSharp.dll. Se existir, é Mono. Se houver global-metadata.dat em <jogo>_Data/il2cpp_data/Metadata, é IL2CPP e este playbook não se aplica.",
+      "checks": ["processo"],
+      "risco": "nenhum"
+    },
+    {
+      "id": "M2",
+      "titulo": "Extrair o mapa de tipos e campos",
+      "detalhe": "Rode `prumo map Assembly-CSharp.dll --alvo <termo>` para obter as classes candidatas, com campos e tipos, dentro de um orçamento de tokens.",
+      "checks": ["estrutura"],
+      "risco": "nenhum"
+    },
+    {
+      "id": "M3",
+      "titulo": "Escolher a classe do objeto do mundo",
+      "detalhe": "A entidade do jogador costuma ser a classe que carrega posição (Vector3), vida/health e nome. Confirme pela contagem de campos e pelos métodos que a referenciam.",
+      "checks": ["estrutura"],
+      "risco": "nenhum"
+    },
+    {
+      "id": "M4",
+      "titulo": "Provar o campo por ação",
+      "detalhe": "Com o jogo rodando, tome dano/mova e observe o valor mudar exatamente como esperado. Sem essa prova, o campo é hipótese, não fato.",
+      "checks": ["campo"],
+      "risco": "baixo"
+    },
+    {
+      "id": "M5",
+      "titulo": "Enumerar a lista de entidades",
+      "detalhe": "Com o endereço do objeto local e a estrutura confirmados, suba a hierarquia até o contêiner (manager/lista) e conte as entidades. Contagem > 1 e posições distintas = lista válida.",
+      "checks": ["campo", "entidades"],
+      "risco": "baixo"
+    },
+    {
+      "id": "M6",
+      "titulo": "Projetar mundo para tela",
+      "detalhe": "Obtenha a matriz de view-projection da câmera e valide com `prumo verificar projecao`: o ponto do próprio jogador tem de cair no centro da tela com erro < 2%.",
+      "checks": ["projecao"],
+      "risco": "baixo"
+    },
+    {
+      "id": "M7",
+      "titulo": "Fixar a assinatura",
+      "detalhe": "Gere uma assinatura AOB com >= 8 bytes fixos e confirme unicidade (`prumo verificar assinatura`). Assinatura com 1 hit sobrevive a patch; com vários, não.",
+      "checks": ["assinatura"],
+      "risco": "baixo"
+    }
+  ],
+  "limitacoes": [
+    "Campo privado pode estar inlinado em struct; nem toda entidade tem nome de classe óbvio.",
+    "Jogos com ofuscação (Cecil/ConfuserEx) reduzem a leitura a nomes genéricos: aí o caminho vira disasm, não metadata.",
+    "Backend Mono não é garantia: checar M1 antes de tudo."
+  ],
+  "referencias": [
+    "ECMA-335 (Common Language Infrastructure) - formato dos metadados",
+    "dnfile / dnSpy / ILSpy - leitores de metadados .NET"
+  ]
+}
