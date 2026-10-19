@@ -198,12 +198,12 @@ def render_markdown(plano: Plano) -> str:
     if plano.alertas:
         add("## Alertas")
         for alerta in plano.alertas:
-            add(f"- ⚠️ {alerta}")
+            add(f"- aviso: {alerta}")
         add("")
     if plano.nao_faz:
         add("## Não faz")
         for item in plano.nao_faz:
-            add(f"- ⛔ {item}")
+            add(f"- não: {item}")
         add("")
     if plano.alternativas:
         add("## Alternativas mais seguras")

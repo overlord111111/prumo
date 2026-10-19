@@ -44,10 +44,10 @@ Obtenha a matriz de view-projection da câmera e valide com `prumo verificar pro
 Gere uma assinatura AOB com >= 8 bytes fixos e confirme unicidade (`prumo verificar assinatura`). Assinatura com 1 hit sobrevive a patch; com vários, não.
 
 ## Alertas
-- ⚠️ BattlEye em servidor público significa corrida de detecção: nada aqui fica 'pronto', e ban é permanente (pode incluir HWID).
+- aviso: BattlEye em servidor público significa corrida de detecção: nada aqui fica 'pronto', e ban é permanente (pode incluir HWID).
 
 ## Não faz
-- ⛔ usar o resultado deste plano em servidor com outros jogadores como teste
+- não: usar o resultado deste plano em servidor com outros jogadores como teste
 
 ## Alternativas mais seguras
 - reproduzir o mesmo estudo em single-player/LAN do mesmo motor

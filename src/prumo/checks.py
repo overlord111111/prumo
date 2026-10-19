@@ -30,8 +30,7 @@ class Resultado:
         return {"check": self.check, "status": self.status, "medida": self.medida, "detalhe": self.detalhe}
 
     def __str__(self) -> str:  # pragma: no cover - formatação
-        icone = {PASS: "✔", FAIL: "✘", INDETERMINADO: "?"}[self.status]
-        return f"{icone} {self.status:<14} {self.check:<11} {self.medida} — {self.detalhe}"
+        return f"{self.status:<14} {self.check:<11} {self.medida} — {self.detalhe}"
 
 
 def registro() -> list[dict[str, Any]]:
