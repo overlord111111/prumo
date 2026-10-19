@@ -1,0 +1,19 @@
+title: prumo
+description: Diagnóstico, playbooks e verificação para engenharia reversa de jogos com agentes de IA.
+lang: pt-BR
+url: https://overlord111111.github.io
+baseurl: /prumo
+markdown: kramdown
+encoding: utf-8
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: false
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+exclude:
+  - "*.py"

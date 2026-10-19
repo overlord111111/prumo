@@ -1,0 +1,189 @@
+:root {
+  --texto: #1a1d21;
+  --suave: #5c6570;
+  --linha: #e2e6ea;
+  --fundo: #ffffff;
+  --fundo-suave: #f7f9fa;
+  --acento: #2f6f6a;
+  --codigo: #f2f4f6;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --texto: #e6e9ec;
+    --suave: #9aa4ae;
+    --linha: #2b3138;
+    --fundo: #14181c;
+    --fundo-suave: #191e23;
+    --acento: #6fb3ac;
+    --codigo: #1e2429;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.limite { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+/* topo */
+.topo {
+  border-bottom: 1px solid var(--linha);
+  background: var(--fundo);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topo .limite {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 60px;
+  flex-wrap: wrap;
+}
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--texto);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  font-size: 17px;
+}
+.fio {
+  width: 2px;
+  height: 18px;
+  background: var(--acento);
+  display: inline-block;
+  position: relative;
+}
+.fio::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: -2.5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--acento);
+}
+.abas {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+.abas a {
+  color: var(--suave);
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+}
+.abas a:hover { color: var(--texto); border-bottom-color: var(--acento); }
+.abas a.externo { color: var(--acento); }
+
+/* conteúdo */
+.conteudo { padding: 40px 24px 72px; }
+.conteudo h1 {
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+.conteudo h2 {
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  margin: 38px 0 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--linha);
+}
+.conteudo h2:first-of-type { border-top: 0; padding-top: 0; }
+.conteudo h3 { font-size: 17px; margin: 26px 0 8px; }
+.conteudo p, .conteudo li { color: var(--texto); }
+.conteudo a { color: var(--acento); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.conteudo a:hover { text-decoration-thickness: 2px; }
+.conteudo hr { border: 0; border-top: 1px solid var(--linha); margin: 36px 0; }
+
+code, pre, kbd {
+  font-family: var(--mono);
+  font-size: 13.5px;
+}
+code {
+  background: var(--codigo);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+pre {
+  background: var(--codigo);
+  border: 1px solid var(--linha);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 14.5px;
+}
+th, td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--linha);
+  vertical-align: top;
+}
+th { color: var(--suave); font-weight: 600; font-size: 13px; text-transform: none; }
+tbody tr:hover { background: var(--fundo-suave); }
+
+blockquote {
+  margin: 18px 0;
+  padding: 2px 16px;
+  border-left: 3px solid var(--acento);
+  color: var(--suave);
+}
+
+/* cartões da home */
+.cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin: 26px 0 8px;
+}
+.cartao {
+  display: block;
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  padding: 16px 18px;
+  text-decoration: none;
+  color: inherit;
+  background: var(--fundo-suave);
+}
+.cartao:hover { border-color: var(--acento); }
+.cartao strong { display: block; color: var(--texto); margin-bottom: 4px; }
+.cartao span { color: var(--suave); font-size: 14px; }
+
+.rodape {
+  border-top: 1px solid var(--linha);
+  padding: 22px 0 40px;
+  color: var(--suave);
+  font-size: 13.5px;
+}
+.rodape .limite { display: flex; gap: 8px; flex-wrap: wrap; }
+.rodape a { color: var(--suave); }
+
+@media (max-width: 640px) {
+  .topo .limite { min-height: auto; padding-top: 12px; padding-bottom: 12px; }
+  .abas { gap: 12px; font-size: 13px; }
+  .conteudo { padding-top: 28px; }
+}

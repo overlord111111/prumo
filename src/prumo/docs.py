@@ -10,12 +10,18 @@ from pathlib import Path
 
 from . import dados
 
-CABECALHO = "<!-- GERADO por `prumo docs`. Não edite à mão: edite src/prumo/data/ e rode `prumo docs`. -->\n"
+
+def cabecalho(titulo: str) -> str:
+    """Front matter (para o site) + aviso de geração."""
+    return (
+        f"---\ntitle: {titulo}\n---\n\n"
+        "<!-- GERADO por `prumo docs`. Não edite à mão: edite src/prumo/data/ e rode `prumo docs`. -->\n"
+    )
 
 
 def _tabela_motores() -> str:
     linhas = [
-        CABECALHO,
+        cabecalho("Motores"),
         "# Motores cobertos\n",
         "| motor | backend | o que se lê | passos | limitações |",
         "|---|---|---|---|---|",
@@ -51,7 +57,7 @@ def _tabela_motores() -> str:
 
 def _tabela_ac() -> str:
     linhas = [
-        CABECALHO,
+        cabecalho("Anti-cheat"),
         "# Matriz de anti-cheat\n",
         "| anti-cheat | camadas | detecta | degraus na escada |",
         "|---|---|---|---|",
@@ -99,7 +105,7 @@ def _tabela_ac() -> str:
 
 def _checks_md() -> str:
     linhas = [
-        CABECALHO,
+        cabecalho("Checks"),
         "# Os 7 checks\n",
         "| check | pergunta | implementação | requer |",
         "|---|---|---|---|",

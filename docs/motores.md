@@ -1,3 +1,7 @@
+---
+title: Motores
+---
+
 <!-- GERADO por `prumo docs`. Não edite à mão: edite src/prumo/data/ e rode `prumo docs`. -->
 
 # Motores cobertos

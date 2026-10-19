@@ -1,3 +1,7 @@
+---
+title: Arquitetura
+---
+
 # Arquitetura
 
 Três camadas, com fronteira explícita para não reescrever o que já existe bem feito.

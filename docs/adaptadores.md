@@ -1,3 +1,7 @@
+---
+title: Adaptadores
+---
+
 # Adaptadores
 
 O prumo não abre processo no Windows nem injeta nada. Ele define um contrato e usa adaptadores. Há um

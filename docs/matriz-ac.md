@@ -1,3 +1,7 @@
+---
+title: Anti-cheat
+---
+
 <!-- GERADO por `prumo docs`. Não edite à mão: edite src/prumo/data/ e rode `prumo docs`. -->
 
 # Matriz de anti-cheat

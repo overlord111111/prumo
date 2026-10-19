@@ -1,3 +1,7 @@
+---
+title: Checks
+---
+
 <!-- GERADO por `prumo docs`. Não edite à mão: edite src/prumo/data/ e rode `prumo docs`. -->
 
 # Os 7 checks

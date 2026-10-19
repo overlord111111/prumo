@@ -1,3 +1,7 @@
+---
+title: Metodologia
+---
+
 # Metodologia
 
 Este projeto existe por causa de uma regra: **medir, não opinar**. Toda afirmação aqui ou tem número, ou está

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+<meta name="description" content="{{ site.description }}">
+<link rel="stylesheet" href="{{ '/assets/prumo.css' | relative_url }}">
+</head>
+<body>
+<header class="topo">
+  <div class="limite">
+    <a class="marca" href="{{ '/' | relative_url }}">
+      <span class="fio" aria-hidden="true"></span>
+      <span class="nome">prumo</span>
+    </a>
+    <nav class="abas" aria-label="Seções">
+      <a href="{{ '/' | relative_url }}">Visão geral</a>
+      <a href="{{ '/metodologia.html' | relative_url }}">Metodologia</a>
+      <a href="{{ '/adaptadores.html' | relative_url }}">Adaptadores</a>
+      <a href="{{ '/checks.html' | relative_url }}">Checks</a>
+      <a href="{{ '/motores.html' | relative_url }}">Motores</a>
+      <a href="{{ '/matriz-ac.html' | relative_url }}">Anti-cheat</a>
+      <a href="{{ '/arquitetura.html' | relative_url }}">Arquitetura</a>
+      <a class="externo" href="https://github.com/overlord111111/prumo">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="limite conteudo">
+{{ content }}
+</main>
+
+<footer class="rodape">
+  <div class="limite">
+    <span>prumo · MIT · Over</span>
+    <span class="sep">·</span>
+    <a href="https://github.com/overlord111111/prumo">código</a>
+    <span class="sep">·</span>
+    <a href="https://github.com/overlord111111/prumo/blob/main/CHANGELOG.md">changelog</a>
+  </div>
+</footer>
+</body>
+</html>
