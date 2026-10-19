@@ -100,7 +100,9 @@ def executar() -> tuple[bool, list[str]]:
             # 5. varredura de assinatura
             try:
                 padrao = checks.parse_padrao(" ".join(f"{b:02X}" for b in ASSINATURA[:12]))
-                achados = adaptador.varrer(padrao, limite_regiao=32 * 1024 * 1024)
+                achados = adaptador.varrer(
+                    padrao, limite_regiao=16 * 1024 * 1024, limite_total=64 * 1024 * 1024
+                )
                 ok = endereco_assinatura in achados
                 estado = "encontrado" if ok else "NÃO encontrado"
                 detalhe = f"{len(achados)} hit(s); buffer conhecido {estado}"

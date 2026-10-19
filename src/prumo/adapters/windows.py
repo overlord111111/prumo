@@ -293,13 +293,21 @@ class ProcessoWindows:
 
     # ------------------------------------------------------------------ utilidades
 
-    def varrer(self, padrao: list[int | None], limite_regiao: int = 64 * 1024 * 1024) -> list[int]:
+    def varrer(
+        self,
+        padrao: list[int | None],
+        limite_regiao: int = 64 * 1024 * 1024,
+        limite_total: int = 256 * 1024 * 1024,
+    ) -> list[int]:
         from ..checks import _varrer_ancorada
 
         achados: list[int] = []
+        lido_total = 0
         for regiao in self.regioes():
             if not varrervavel(regiao):
                 continue
+            if lido_total >= limite_total:
+                break
             lido = 0
             while lido < regiao.tamanho and lido < limite_regiao:
                 bloco = min(4 * 1024 * 1024, regiao.tamanho - lido)
@@ -312,4 +320,5 @@ class ProcessoWindows:
                 for deslocamento in _varrer_ancorada(dados, padrao):
                     achados.append(regiao.inicio + lido + deslocamento)
                 lido += bloco
+                lido_total += bloco
         return achados
