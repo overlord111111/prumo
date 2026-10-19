@@ -134,7 +134,10 @@ def _decodificar_tipo(pe: Any, dados: bytes, indice: int) -> tuple[str, int]:
 def ler(assembly: str | Path) -> dict[str, Any]:
     """Lê o assembly e devolve a estrutura (classes + campos + tipos)."""
     if not disponivel():
-        raise RuntimeError("o comando `map` requer o extra: pip install 'prumo[map]'")
+        raise RuntimeError(
+            "o comando `map` requer o extra dnfile: pipx inject prumo dnfile "
+            "(ou pip install 'prumo[map] @ git+https://github.com/overlord111111/prumo')"
+        )
     import dnfile
 
     caminho = Path(assembly)

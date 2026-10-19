@@ -97,9 +97,9 @@ def gerar_plano(motor_id: str, ac_id: str, modo: str) -> Plano:
     if degrau0 and degrau0["risco"] == "n/a":
         risco_ac = "alto"
     risco = _pior_risco(risco, risco_ac)
+    camadas = [chave for chave, valor in ac_d["camadas"].items() if valor and valor != "nenhuma"]
     motivos.append(
-        f"anti-cheat: {ac_d['nome']} — camadas ativas: "
-        + ", ".join(k for k, v in ac_d["camadas"].items() if v and v != "nenhuma")
+        f"anti-cheat: {ac_d['nome']} — camadas ativas: " + (", ".join(camadas) if camadas else "nenhuma")
     )
 
     passos = []

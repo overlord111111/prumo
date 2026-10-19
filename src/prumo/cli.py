@@ -113,7 +113,12 @@ def _cmd_map(args: argparse.Namespace) -> int:
         print("erro: comando indisponível", file=sys.stderr)
         return 2
     if not dotnet.disponivel():
-        print("erro: o comando `map` requer o extra: pip install 'prumo[map]'", file=sys.stderr)
+        print(
+            "erro: o comando `map` requer o extra dnfile. Instale com:\n"
+            "  pipx inject prumo dnfile\n"
+            "  pip install 'prumo[map] @ git+https://github.com/overlord111111/prumo'",
+            file=sys.stderr,
+        )
         return 2
     try:
         mapa = dotnet.ler(args.assembly)

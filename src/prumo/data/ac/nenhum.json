@@ -5,7 +5,7 @@
   "camadas": {
     "usuario": "nenhuma",
     "kernel": "nenhuma",
-    "servidor": "pode existir checagem de admin, mas não há AC automatizado"
+    "servidor": "nenhuma"
   },
   "detecta": [],
   "nao_detecta": [

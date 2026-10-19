@@ -8,7 +8,7 @@ title: Anti-cheat
 
 | anti-cheat | camadas | detecta | degraus na escada |
 |---|---|---|---|
-| **Sem anti-cheat** (`nenhum`) | servidor | 0 | 1 |
+| **Sem anti-cheat** (`nenhum`) | — | 0 | 1 |
 | **BattlEye** (`battleye`) | usuario, kernel, servidor | 5 | 5 |
 | **Easy Anti-Cheat** (`eac`) | usuario, kernel, servidor | 4 | 4 |
 | **Valve Anti-Cheat (VAC)** (`vac`) | usuario, kernel, servidor, politica | 4 | 3 |
