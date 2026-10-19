@@ -1,33 +1,33 @@
 # Fluxo completo num processo real (Linux, adaptador local)
 
 Processo filho expõe um array de inteiros e muda o primeiro valor 0,5 s depois.
-PID 78061 · endereço do array 0x73F5DF53E600
+PID 90004 · endereço do array 0x7BB4AA53E600
 
 ## prumo processo
-processo  78061  x86_64  /home/zion/.hermes/tools/python-3.14.7+20260901-linux-x64/bin/python3.14
+processo  90004  x86_64  <python>
 modulos   11
-  0x0000003FF000  127499851612160  python3.14
-  0x73F5DF200000     3059712  locale-archive
-  0x73F5DF600000     2121728  libc.so.6
-  0x73F5DF877000      364544  LC_CTYPE
-  0x73F5DF8D5000       20480  librt.so.1
-  0x73F5DF8DA000      954368  libm.so.6
+  0x0000003FF000  136015882575872  python3.14
+  0x7BB4AA200000     3059712  locale-archive
+  0x7BB4AA600000     2121728  libc.so.6
+  0x7BB4AA879000      364544  LC_CTYPE
+  0x7BB4AA8D7000       20480  librt.so.1
+  0x7BB4AA8DC000      954368  libm.so.6
 
-PASS           processo    pid=78061 arch=x86_64 modulos=11 — alvo acessível: /home/zion/.hermes/tools/python-3.14.7+20260901-linux-x64/bin/python3.14
+PASS           processo    pid=90004 arch=x86_64 modulos=11 — alvo acessível: <python>
 
 ## prumo ler (antes da ação)
-int32 @ 0x73f5df53e600 = 111
+int32 @ 0x7bb4aa53e600 = 111
 
 ## prumo ler (depois da ação)
-int32 @ 0x73f5df53e600 = 777
+int32 @ 0x7bb4aa53e600 = 777
 
 ## prumo verificar --check campo (testemunho antes/depois)
 PASS           campo       antes=111.0 depois=777.0 delta=+666.000 — o valor mudou com a ação
 
 ## prumo varrer (assinatura com 12 bytes fixos)
 8 hit(s) para '50 52 55 4D 4F 2D 61 73 73 69 6E 61'
-  0x0000314021A7
-  0x000031457AE2
-  0x00003145E467
-  0x73F5DF164F90
-  0x73F5DF1A0503
+  0x00002608A1A7
+  0x0000260DFA12
+  0x0000260E6397
+  0x7BB4AA165050
+  0x7BB4AA1A0503

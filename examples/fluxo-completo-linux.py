@@ -12,8 +12,9 @@ Requer Linux (usa /proc). Não altera nada fora do processo filho.
 
 from __future__ import annotations
 
-import ctypes
 import os
+import re
+import shutil
 import subprocess
 import sys
 import time
@@ -39,12 +40,17 @@ time.sleep(10)
 def executar(comando: list[str]) -> str:
     resultado = subprocess.run(comando, capture_output=True, text=True, check=False)
     saida = (resultado.stdout + resultado.stderr).rstrip()
+    # Não publicar caminho absoluto da máquina de quem gerou o exemplo.
+    # qualquer caminho absoluto para um binário python vira marcador genérico
+    saida = re.sub(r"/[^\s]*python[0-9.]*(?=\s|$)", "<python>", saida)
+    saida = saida.replace(os.path.expanduser("~"), "~")
     return saida
 
 
 def main() -> int:
     destino = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("examples/fluxo-completo-linux.txt")
-    filho = subprocess.Popen([sys.executable, "-c", FILHO], stdout=subprocess.PIPE, text=True)
+    interpretador = shutil.which("python3") or sys.executable
+    filho = subprocess.Popen([interpretador, "-c", FILHO], stdout=subprocess.PIPE, text=True)
     assert filho.stdout is not None
     linha = filho.stdout.readline().split()
     pid, endereco = int(linha[0]), int(linha[1])
