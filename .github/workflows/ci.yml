@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Instalar
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check src tests
+
+      - name: Dados versionados
+        run: prumo dados
+
+      - name: Documentação derivada em sincronia
+        run: prumo docs --check
+
+      - name: Testes
+        run: pytest -q
+
+      - name: Smoke da CLI
+        run: |
+          prumo --version
+          prumo verificar --lista
+          prumo diagnostico --motor unity-mono --ac nenhum --modo single --formato json > /dev/null
+          prumo diagnostico --motor unity-mono --ac battleye --modo online | head -n 5
