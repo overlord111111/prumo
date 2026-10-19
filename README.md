@@ -41,12 +41,21 @@ O prumo ataca a parte que falta, em três frentes:
 
 ## Instalação
 
+O pacote **não** está publicado no PyPI (o nome `prumo` lá pertence a outro projeto). Instale do
+repositório:
+
 ```bash
-pipx install git+https://github.com/overlord111111/prumo
-pip install "prumo[map]"          # opcional: leitura de assembly .NET
+pipx install "git+https://github.com/overlord111111/prumo"
+
+# com o leitor de assembly .NET (comando `map`):
+pipx install "git+https://github.com/overlord111111/prumo"
+pipx inject prumo dnfile
+# ou, em um virtualenv:
+pip install "prumo[map] @ git+https://github.com/overlord111111/prumo"
 ```
 
-Python 3.11+. Sem dependência obrigatória, sem conta, sem telemetria.
+Requisitos: Python 3.11+, sem dependência obrigatória, sem conta, sem telemetria. O adaptador de processo
+vivo é Linux (`/proc`); em Windows funcionam o diagnóstico, o mapa de tipos e os checks estáticos.
 
 ## Uso
 
@@ -57,8 +66,8 @@ prumo diagnostico --motor unity-mono --ac nenhum --modo single
 prumo diagnostico --motor unreal --ac eac --modo online --formato json
 ```
 
-**Mapa de tipos** — assembly .NET vira dossiê ranqueado pelo termo procurado, cortado por orçamento de
-token (o agente recebe o essencial, não dez mil classes):
+**Mapa de tipos** (requer o extra `dnfile`) — assembly .NET vira dossiê ranqueado pelo termo procurado,
+cortado por orçamento de token (o agente recebe o essencial, não dez mil classes):
 
 ```bash
 prumo map "…/Unturned_Data/Managed/Assembly-CSharp.dll" --alvo health --orcamento 3000

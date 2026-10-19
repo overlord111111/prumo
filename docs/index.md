@@ -55,9 +55,11 @@ $ prumo diagnostico --motor unity-mono --ac battleye --modo online
 ## Instalação
 
 ```bash
-pipx install git+https://github.com/overlord111111/prumo
-pip install "prumo[map]"          # opcional: leitura de assembly .NET
+pipx install "git+https://github.com/overlord111111/prumo"
+pipx inject prumo dnfile     # opcional: comando `map` (assembly .NET)
 ```
+
+O pacote não está no PyPI — o nome `prumo` lá é de outro projeto. Instale sempre do repositório.
 
 ## Para contribuir
 

@@ -75,7 +75,7 @@ Fluxo completo, sem jogo e sem Cheat Engine (sobe um processo filho que muda um 
 python examples/fluxo-completo-linux.py
 ```
 
-Saída registrada em [`examples/fluxo-completo-linux.txt`](../examples/fluxo-completo-linux.txt): check de
+Saída registrada em [`examples/fluxo-completo-linux.txt`](https://github.com/overlord111111/prumo/blob/main/examples/fluxo-completo-linux.txt): check de
 processo em `PASS` com 11 módulos, leitura `111` antes e `777` depois da mudança, `campo` em `PASS` com
 delta `+666` e varredura de assinatura com 8 ocorrências — número que serve de lição: a mesma sequência
 aparece no código-fonte carregado em memória, e é por isso que assinatura precisa ser única.
@@ -90,7 +90,7 @@ prumo map /caminho/OpenRA.Game.dll --alvo health --orcamento 2500
 
 Resultado medido nessa execução: **957 classes, 3.658 campos**, com `OpenRA.Actor` no topo do ranking para o
 alvo `health` (campo `health` do tipo `OpenRA.Traits.IHealth`). Saída íntegra em
-[`examples/mapa-openra-health.md`](../examples/mapa-openra-health.md).
+[`examples/mapa-openra-health.md`](https://github.com/overlord111111/prumo/blob/main/examples/mapa-openra-health.md).
 
 ## 6. Teste do próprio instrumento
 
