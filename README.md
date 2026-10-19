@@ -163,6 +163,8 @@ Medido, não estimado:
   regex equivalente (bloco real de 268 MB). Projeção para 2 GB: 1,3 s contra 30 s;
 - fluxo completo em processo real — leitura tipada, escrita, detecção de mudança e varredura —
   reproduzível com `python examples/fluxo-completo-linux.py`;
+- `prumo autoteste` executado em duas plataformas: **Linux 6.8** (6/6, 0,17 s) e **Windows 11 com Python 3.14**
+  (6/6, 41 módulos) — saídas em `examples/autoteste-windows.txt`;
 - 49 testes, incluindo adaptador com processo filho real, decodificador ECMA-335 e matemática de projeção;
 - documentação derivada dos dados: `prumo docs --check` falha se playbook e documento divergirem.
 

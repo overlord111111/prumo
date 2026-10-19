@@ -1,0 +1,11 @@
+prumo autoteste · plataforma=Windows 11 · python=3.14.4
+adaptadores disponíveis: windows
+
+PASS    processo   pid=9784 arch=x86_64 modulos=41 — PASS
+PASS    leitura    int32 em 0x1FC58789B28 = 11
+PASS    escrita    4 byte(s) escritos, lido de volta = 999
+PASS    mudanca    22 -> 29 (delta +7)
+PASS    varredura  2 hit(s); buffer conhecido encontrado
+PASS    higiene    recusou escrita sem habilitar_escrita()
+
+RESULTADO: tudo funcionando

@@ -23,6 +23,13 @@ Adaptador nativo de Windows e autoteste do instrumento.
   repositório (o nome `prumo` no PyPI pertence a outro projeto).
 - Cinco testes novos (49 no total), incluindo o autoteste completo e a importação do módulo Windows fora
   do Windows.
+- `python -m prumo` funcionar sem depender do script no PATH.
+
+### Verificado
+
+- `prumo autoteste` em **Windows 11, Python 3.14.4**: 6/6 `PASS` (41 módulos; leitura, escrita, mudança,
+  varredura e recusa de escrita). Saída em `examples/autoteste-windows.txt`.
+- `prumo autoteste` em **Linux 6.8**: 6/6 `PASS` em 0,17 s.
 
 ## [0.2.0] — 2026-10-19
 
