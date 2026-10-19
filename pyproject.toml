@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prumo"
-version = "0.2.0"
+version = "0.3.0"
 description = "O prumo do agente: diagnóstico, playbooks e verificação para engenharia reversa de jogos com agentes de IA"
 readme = "README.md"
 requires-python = ">=3.11"

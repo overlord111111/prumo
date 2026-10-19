@@ -190,6 +190,12 @@ def _abrir_adaptador(pid: int, escrita: bool = False):
     return adaptador
 
 
+def _cmd_autoteste(_args: argparse.Namespace) -> int:
+    from . import autoteste
+
+    return autoteste.main()
+
+
 def _cmd_processo(args: argparse.Namespace) -> int:
     from .adapters import AdaptadorIndisponivel, FalhaDeLeitura
 
@@ -358,6 +364,9 @@ def construir_parser() -> argparse.ArgumentParser:
     var.add_argument("--limite-mb", dest="limite_mb", type=int, default=64)
     var.add_argument("--formato", choices=["md", "json"], default="md")
     var.set_defaults(func=_cmd_varrer)
+
+    auto = sub.add_parser("autoteste", help="verifica o adaptador de processo nesta máquina")
+    auto.set_defaults(func=_cmd_autoteste)
 
     doc = sub.add_parser("docs", help="gera (ou confere) a documentação derivada dos dados")
     doc.add_argument("--destino", default="docs")

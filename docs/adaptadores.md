@@ -47,6 +47,36 @@ Duas restrições reais, ambas do sistema operacional e não do prumo:
 Escrita é opt-in: `ProcessoLocal` recusa `escrever` até receber `habilitar_escrita()`, e a CLI exige
 `--confirmar`. É a única operação do projeto que altera o alvo.
 
+## Adaptador Windows
+
+`src/prumo/adapters/windows.py`, em ctypes puro — sem compilar, sem dependência, sem instalar driver:
+
+| operação | chamada |
+|---|---|
+| abrir o alvo | `OpenProcess(PROCESS_VM_READ [\| VM_WRITE \| VM_OPERATION])` |
+| ler | `ReadProcessMemory` |
+| escrever | `WriteProcessMemory` (só após `habilitar_escrita()`) |
+| mapear memória | `VirtualQueryEx`, região por região, com estado e proteção |
+| listar módulos | `CreateToolhelp32Snapshot` + `Module32FirstW/NextW`; sem snapshot, agrupa regiões `MEM_IMAGE` |
+| arquitetura | `IsWow64Process` sobre o bitness do Python |
+
+Caminho do executável vem de `QueryFullProcessImageNameW`; a escrita reabre o handle com os direitos de
+escrita, para não manter permissão de escrita aberta sem uso.
+
+**Quando `OpenProcess` recusa:** processo de outro usuário, processo elevado (sessão sem elevação) ou alvo
+protegido por anti-cheat de kernel. Nos dois primeiros casos, rodar o terminal no mesmo nível resolve; no
+terceiro, não há caminho por este adaptador — e o erro da CLI diz exatamente isso.
+
+**Como saber se funciona na sua máquina**, em dez segundos:
+
+```bash
+prumo autoteste
+```
+
+Ele abre o próprio processo e exercita as seis capacidades — abrir, ler, escrever, observar mudança, varrer
+assinatura e recusar escrita sem permissão — devolvendo `PASS` ou `FALHOU` por linha. Se o autoteste passa, o
+adaptador está operando; se falha, a linha mostra qual chamada recusou.
+
 ## Ferramentas que já falam MCP
 
 Cheat Engine, Frida, x64dbg e Ghidra já têm servidor MCP pronto. Nesse caso não há adaptador nosso no meio:

@@ -80,13 +80,30 @@ Saída medida num jogo de código aberto (OpenRA, MIT — 957 classes, 3.658 cam
 | 1 | `OpenRA.Actor` | 35 | health:OpenRA.Traits.IHealth |
 | 2 | `OpenRA.Traits.FrozenActor` | 30 | health:OpenRA.Traits.IHealth |
 
-**Processo vivo** — adaptador de referência para Linux (`/proc`), sem Cheat Engine, sem Frida:
+**Processo vivo** — adaptador próprio, sem Cheat Engine e sem Frida. Linux usa `/proc`; Windows usa
+`OpenProcess` / `ReadProcessMemory` / `VirtualQueryEx` em ctypes, sem compilar nada:
 
 ```bash
+prumo autoteste                                   # prova o adaptador nesta máquina
 prumo processo --pid 1234 --modulo libc.so.6      # pid, arquitetura, módulos, check de processo
 prumo ler      --pid 1234 --endereco 0x7f8a...    --tipo int32
 prumo varrer   --pid 1234 --padrao "48 8B 05 ?? ?? 33 44 66 77" --max 5
 prumo escrever --pid 1234 --endereco 0x7f8a...    --tipo int32 --valor 999 --confirmar
+```
+
+```
+$ prumo autoteste
+prumo autoteste · plataforma=Linux 6.8.0 · python=3.14.7
+adaptadores disponíveis: local
+
+PASS    processo   pid=83822 arch=x86_64 modulos=11 — PASS
+PASS    leitura    int32 em 0x78D79E5274A0 = 11
+PASS    escrita    4 byte(s) escritos, lido de volta = 999
+PASS    mudanca    22 -> 29 (delta +7)
+PASS    varredura  3 hit(s); buffer conhecido encontrado
+PASS    higiene    recusou escrita sem habilitar_escrita()
+
+RESULTADO: tudo funcionando
 ```
 
 **Verificação** — cada check devolve veredito com o número:
@@ -146,13 +163,13 @@ Medido, não estimado:
   regex equivalente (bloco real de 268 MB). Projeção para 2 GB: 1,3 s contra 30 s;
 - fluxo completo em processo real — leitura tipada, escrita, detecção de mudança e varredura —
   reproduzível com `python examples/fluxo-completo-linux.py`;
-- 44 testes, incluindo adaptador com processo filho real, decodificador ECMA-335 e matemática de projeção;
+- 49 testes, incluindo adaptador com processo filho real, decodificador ECMA-335 e matemática de projeção;
 - documentação derivada dos dados: `prumo docs --check` falha se playbook e documento divergirem.
 
 Limites declarados:
 
-- o adaptador de referência é Linux (`/proc`). Em Windows, o caminho é plugar Cheat Engine ou Frida pelo
-  contrato de adaptador — não há implementação nativa aqui;
+- o adaptador é nativo em Linux (`/proc`) e em Windows (`OpenProcess`/`ReadProcessMemory`). Em Windows com
+  anti-cheat de kernel, `OpenProcess` é recusado — e o erro diz isso em vez de fingir sucesso;
 - playbook é método, não mágica: jogo com símbolos ofuscados exige mais disassembler e menos nome;
 - passar nos checks significa "não caiu nestas verificações", não "é indetectável". Anti-cheat é corrida
   de detecção, não estado.

@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 
 from .base import AdaptadorIndisponivel, FalhaDeLeitura, Modulo, Regiao
+from .comum import juntar_regioes_em_modulos, varrervavel
 
 _LINHA_MAPA = re.compile(
     r"^(?P<inicio>[0-9a-f]+)-(?P<fim>[0-9a-f]+)\s+(?P<perms>[rwxps-]{4})\s+"
@@ -114,18 +115,8 @@ class ProcessoLocal:
     def modulos(self) -> list[Modulo]:
         if self._modulos is not None:
             return self._modulos
-        agrupados: dict[str, Modulo] = {}
-        for regiao in self.regioes():
-            if not regiao.caminho.startswith("/"):
-                continue
-            atual = agrupados.get(regiao.caminho)
-            if atual is None:
-                agrupados[regiao.caminho] = Modulo(regiao.caminho, regiao.inicio, regiao.tamanho)
-            else:
-                novo_inicio = min(atual.base, regiao.inicio)
-                novo_fim = max(atual.base + atual.tamanho, regiao.fim)
-                agrupados[regiao.caminho] = Modulo(regiao.caminho, novo_inicio, novo_fim - novo_inicio)
-        self._modulos = sorted(agrupados.values(), key=lambda m: m.base)
+        regioes = [r for r in self.regioes() if r.caminho.startswith("/")]
+        self._modulos = juntar_regioes_em_modulos(regioes)
         return self._modulos
 
     def modulo(self, nome: str) -> Modulo | None:
@@ -173,9 +164,7 @@ class ProcessoLocal:
 
         achados: list[int] = []
         for regiao in self.regioes():
-            if not regiao.legivel or regiao.tamanho > 512 * 1024 * 1024:
-                continue
-            if regiao.caminho in ("[vvar]", "[vsyscall]", "[vdso]"):
+            if not varrervavel(regiao):
                 continue
             lido = 0
             while lido < regiao.tamanho and lido < limite_regiao:

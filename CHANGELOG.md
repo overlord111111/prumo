@@ -2,6 +2,28 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); versionamento semântico.
 
+## [0.3.0] — 2026-10-19
+
+Adaptador nativo de Windows e autoteste do instrumento.
+
+### Adicionado
+
+- **`prumo/adapters/windows.py`**: processo via ctypes (`OpenProcess`, `ReadProcessMemory`,
+  `WriteProcessMemory`, `VirtualQueryEx`, `CreateToolhelp32Snapshot`), sem compilar e sem driver. Escrita
+  opt-in, com reabertura do handle apenas quando necessário.
+- **`prumo autoteste`**: exercita as seis capacidades contra o próprio processo — abrir, ler, escrever,
+  observar mudança, varrer assinatura e recusar escrita sem permissão — e devolve `PASS`/`FALHOU` por linha.
+- Lógica compartilhada entre adaptadores (`adapters/comum.py`): agrupamento de regiões em módulos e regra
+  de região varável, testadas isoladamente.
+- Seleção automática de adaptador por plataforma (`local` em Linux, `windows` em Windows).
+
+### Alterado
+
+- `abrir()` passa a escolher o adaptador da plataforma; a mensagem de extra do comando `map` aponta para o
+  repositório (o nome `prumo` no PyPI pertence a outro projeto).
+- Cinco testes novos (49 no total), incluindo o autoteste completo e a importação do módulo Windows fora
+  do Windows.
+
 ## [0.2.0] — 2026-10-19
 
 Fecha o fluxo de processo vivo: os três checks que antes existiam como interface agora medem.
